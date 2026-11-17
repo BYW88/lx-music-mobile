@@ -13,7 +13,8 @@
 # -keepclassmembers class com.reactnativenavigation.views.element.animators.** { *; }
 
 
--keep class org.jaudiotagger.tag.** { *; }
+-keep class org.jaudiotagger.** { *; }
+-dontwarn org.jaudiotagger.**
 
 
 -keep public class com.dylanvann.fastimage.* {*;}

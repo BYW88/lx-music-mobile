@@ -28,6 +28,7 @@ import { checkIgnoringBatteryOptimization, checkNotificationPermission, debounce
 import { LIST_IDS } from '@/config/constant'
 import { addListMusics, removeListMusics } from '@/core/list'
 import { addDislikeInfo } from '@/core/dislikeList'
+import { getDownloadedFilePath } from '@/core/download'
 
 // import { checkMusicFileAvailable } from '@renderer/utils/music'
 
@@ -99,7 +100,14 @@ const getMusicPlayUrl = async(musicInfo: LX.Music.MusicInfo | LX.Download.ListIt
   addLoadTimeout()
 
   // const type = getPlayType(settingState.setting['player.isPlayHighQuality'], musicInfo)
-  let toggleMusicInfo = ('progress' in musicInfo ? musicInfo.metadata.musicInfo : musicInfo).meta.toggleMusicInfo
+  const baseMusicInfo = 'progress' in musicInfo ? musicInfo.metadata.musicInfo : musicInfo
+  // 已下载的歌曲直接播放本地文件，不走网络
+  const downloadedFilePath = await getDownloadedFilePath(baseMusicInfo)
+  if (downloadedFilePath) {
+    if (global.lx.isPlayedStop || diffCurrentMusicInfo(musicInfo)) return null
+    return downloadedFilePath
+  }
+  let toggleMusicInfo = baseMusicInfo.meta.toggleMusicInfo
 
   return (toggleMusicInfo ? getMusicUrl({
     musicInfo: toggleMusicInfo,

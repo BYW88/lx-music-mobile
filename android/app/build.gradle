@@ -115,6 +115,10 @@ android {
         targetSdkVersion rootProject.ext.targetSdkVersion
         versionCode verCode
         versionName verName
+        // 测试包：传入 -PAPP_ID_SUFFIX=.dltest 可与正式版共存安装
+        if (project.hasProperty('APP_ID_SUFFIX')) {
+            applicationIdSuffix APP_ID_SUFFIX
+        }
     }
 
     splits {
