@@ -17,6 +17,9 @@ import {
   getPicUrl as getLocalPicUrl,
   getLyricInfo as getLocalLyricInfo,
 } from './local'
+import { buildLyricInfo } from './utils'
+import { getDownloadedFilePath } from '@/core/download'
+import { readLyric, readPic } from '@/utils/localMediaMetadata'
 
 
 export const getMusicUrl = async({
@@ -37,6 +40,9 @@ export const getMusicUrl = async({
   } else if (musicInfo.source == 'local') {
     return getLocalMusicUrl({ musicInfo, isRefresh, onToggleSource, allowToggleSource })
   } else {
+    // 已下载的歌曲优先播放本地文件
+    const filePath = await getDownloadedFilePath(musicInfo)
+    if (filePath) return filePath
     return getOnlineMusicUrl({ musicInfo, isRefresh, quality, onToggleSource, allowToggleSource })
   }
 }
@@ -57,6 +63,15 @@ export const getPicPath = async({
   } else if (musicInfo.source == 'local') {
     return getLocalPicUrl({ musicInfo, isRefresh, listId, onToggleSource })
   } else {
+    // 已下载的歌曲优先读取文件内嵌封面，离线时也能显示
+    const filePath = await getDownloadedFilePath(musicInfo)
+    if (filePath) {
+      let pic = await readPic(filePath).catch(() => null)
+      if (pic) {
+        if (pic.startsWith('/')) pic = `file://${pic}`
+        return pic
+      }
+    }
     return getOnlinePicUrl({ musicInfo, isRefresh, listId, onToggleSource })
   }
 }
@@ -75,6 +90,16 @@ export const getLyricInfo = async({
   } else if (musicInfo.source == 'local') {
     return getLocalLyricInfo({ musicInfo, isRefresh, onToggleSource })
   } else {
-    return getOnlineLyricInfo({ musicInfo, isRefresh, onToggleSource })
+    try {
+      return await getOnlineLyricInfo({ musicInfo, isRefresh, onToggleSource })
+    } catch (err) {
+      // 获取失败（如离线）时读取已下载文件内嵌的歌词
+      const filePath = await getDownloadedFilePath(musicInfo)
+      if (filePath) {
+        const lyric = await readLyric(filePath).catch(() => '')
+        if (lyric) return buildLyricInfo({ lyric })
+      }
+      throw err
+    }
   }
 }
