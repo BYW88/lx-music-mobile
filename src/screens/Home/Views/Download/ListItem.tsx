@@ -66,7 +66,7 @@ export default memo(({ item, onPress, onShowMenu }: ListItemProps) => {
       </TouchableOpacity>
     </View>
   )
-}, (prev, next) => prev.item === next.item && prev.index === next.index && prev.item.statusText === next.item.statusText && prev.item.progress === next.item.progress && prev.item.speed === next.item.speed && prev.item.status === next.item.status)
+}, (prev, next) => prev.item === next.item && prev.index === next.index)
 
 const styles = createStyle({
   listItem: {

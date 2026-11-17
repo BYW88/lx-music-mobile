@@ -250,9 +250,15 @@ const handleComplete = async(task: LX.Download.ListItem, tempPath: string) => {
     return
   }
   setStatusText(task, t('download_status_write_meta'))
-  await saveMeta(task).catch((err: Error) => {
+  // 写入标签最多等待 30 秒，避免获取封面/歌词卡住导致任务一直停留在下载中
+  await Promise.race([
+    saveMeta(task),
+    new Promise<void>((resolve, reject) => setTimeout(() => { reject(new Error('timeout')) }, 30000)),
+  ]).catch((err: Error) => {
     log.warn('download save meta failed', task.metadata.musicInfo.name, err.message)
   })
+  // 写入期间任务被删除则不再更新状态
+  if (!runningTasks.has(task.id)) return
   runningTasks.delete(task.id)
   retryNums.delete(task.id)
   setStatus(task, DOWNLOAD_STATUS.COMPLETED)
@@ -311,7 +317,7 @@ const runTask = async(task: LX.Download.ListItem) => {
     readTimeout: 30000,
     begin() {},
     progress(res) {
-      if (runInfo.isCancelled) return
+      if (runInfo.isCancelled || task.status != DOWNLOAD_STATUS.RUN) return
       const now = Date.now()
       const duration = (now - lastTime) / 1000
       if (duration > 0) task.speed = formatSpeed((res.bytesWritten - lastBytes) / duration)
