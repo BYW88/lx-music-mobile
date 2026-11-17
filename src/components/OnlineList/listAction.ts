@@ -1,5 +1,5 @@
 import { LIST_IDS } from '@/config/constant'
-import { addListMusics, setTempList } from '@/core/list'
+import { addListMusics } from '@/core/list'
 import { playList, playNext } from '@/core/player/player'
 import { addTempPlayList } from '@/core/player/tempPlayList'
 import settingState from '@/store/setting/state'
@@ -11,9 +11,13 @@ import musicSdk from '@/utils/musicSdk'
 import { toOldMusicInfo } from '@/utils'
 import { clearMusicUrlByMusic } from '@/utils/data'
 
-export const handlePlay = (musicInfo: LX.Music.MusicInfoOnline) => {
-  void addListMusics(LIST_IDS.DEFAULT, [musicInfo], settingState.setting['list.addMusicLocationType']).then(() => {
-    const index = getListMusicSync(LIST_IDS.DEFAULT).findIndex(m => m.id == musicInfo.id)
+export const handlePlay = (musicInfo: LX.Music.MusicInfoOnline, selectedList: LX.Music.MusicInfoOnline[] = [], onCancelSelect?: () => void) => {
+  const list = selectedList.length ? selectedList : [musicInfo]
+  // 多选时：全部加入“试听列表”，优先播放点开菜单的那首（若它在选中项内），否则播放第一首
+  const target = list.includes(musicInfo) ? musicInfo : list[0]
+  if (selectedList.length) onCancelSelect?.()
+  void addListMusics(LIST_IDS.DEFAULT, list, settingState.setting['list.addMusicLocationType']).then(() => {
+    const index = getListMusicSync(LIST_IDS.DEFAULT).findIndex(m => m.id == target.id)
     if (index < 0) return
     void playList(LIST_IDS.DEFAULT, index)
   })
@@ -61,14 +65,4 @@ export const handleDislikeMusic = async(musicInfo: LX.Music.MusicInfoOnline) => 
   if (hasDislike(playerState.playMusicInfo.musicInfo)) {
     void playNext(true)
   }
-}
-
-
-/**
- * 播放多选的歌曲：用所选歌曲替换临时列表并从第一首开始播放
- */
-export const handlePlaySelected = async(selectedList: LX.Music.MusicInfoOnline[]) => {
-  if (!selectedList.length) return
-  await setTempList('multi_select', [...selectedList])
-  await playList(LIST_IDS.TEMP, 0)
 }

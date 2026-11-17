@@ -6,7 +6,7 @@ import ListMenu, { type ListMenuType, type Position, type SelectInfo } from './L
 import ListMusicMultiAdd, { type MusicMultiAddModalType as ListAddMultiType } from '@/components/MusicMultiAddModal'
 import ListMusicAdd, { type MusicAddModalType as ListMusicAddType } from '@/components/MusicAddModal'
 import MultipleModeBar, { type MultipleModeBarType, type SelectMode } from './MultipleModeBar'
-import { clearMusicUrl, handleDislikeMusic, handlePlay, handlePlaySelected, handlePlayLater, handleShare, handleShowMusicSourceDetail } from './listAction'
+import { clearMusicUrl, handleDislikeMusic, handlePlay, handlePlayLater, handleShare, handleShowMusicSourceDetail } from './listAction'
 import { createStyle, toast } from '@/utils/tools'
 import MultiSelectActionBar, { type MultiSelectActionBarType } from '@/components/MultiSelectActionBar'
 import { MULTI_SELECT_BAR_HEIGHT } from './MultipleModeBar'
@@ -79,8 +79,7 @@ export default forwardRef<OnlineListType, OnlineListProps>(({
     }
     switch (action) {
       case 'play':
-        void handlePlaySelected(selectedList)
-        hancelExitSelect()
+        handlePlay(selectedList[0], selectedList, hancelExitSelect)
         break
       case 'playLater':
         handlePlayLater(selectedList[0], selectedList, hancelExitSelect)
@@ -149,12 +148,7 @@ export default forwardRef<OnlineListType, OnlineListProps>(({
       <DownloadQualityModal ref={downloadQualityModalRef} onAdded={() => { hancelExitSelect() }} />
       <ListMenu
         ref={listMenuRef}
-        onPlay={info => {
-          if (info.selectedList.length) {
-            void handlePlaySelected(info.selectedList)
-            hancelExitSelect()
-          } else handlePlay(info.musicInfo)
-        }}
+        onPlay={info => { handlePlay(info.musicInfo, info.selectedList, hancelExitSelect) }}
         onPlayLater={info => { hancelExitSelect(); handlePlayLater(info.musicInfo, info.selectedList, hancelExitSelect) }}
         onCopyName={info => { handleShare(info.musicInfo) }}
         onAdd={handleAddMusic}
