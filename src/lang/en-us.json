@@ -565,5 +565,16 @@
   "version_title_latest": "🎉 The current version is already the latest 🎊",
   "version_title_new": "🌟 New version found 🌟",
   "version_title_unknown": "❓ Failed to get the latest version information ❓",
-  "version_title_update": "🚀 App update 🚀"
+  "version_title_update": "🚀 App update 🚀",
+  "play_queue_title": "Play Queue",
+  "play_queue_now_playing": "Now playing: {name}",
+  "play_queue_none": "None",
+  "play_queue_list_count": "{num} songs",
+  "play_queue_play_later": "Play Later ({num}, plays first)",
+  "play_queue_clear": "Clear",
+  "play_queue_list_title": "Play List (tap to switch)",
+  "play_queue_empty": "No play list",
+  "play_queue_selected_songs": "Selected songs",
+  "play_queue_search_result": "Search: {name}",
+  "play_queue_downloaded": "Downloaded"
 }

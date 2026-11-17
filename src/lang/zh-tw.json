@@ -565,5 +565,16 @@
   "version_title_latest": "🎉 目前版本已是最新 🎊",
   "version_title_new": "🌟 發現新版本 🌟",
   "version_title_unknown": "❓ 獲取最新版本資訊失敗 ❓",
-  "version_title_update": "🚀 軟體更新 🚀"
+  "version_title_update": "🚀 軟體更新 🚀",
+  "play_queue_title": "播放佇列",
+  "play_queue_now_playing": "正在播放：{name}",
+  "play_queue_none": "無",
+  "play_queue_list_count": "共 {num} 首",
+  "play_queue_play_later": "稍後播放（{num}，優先播放）",
+  "play_queue_clear": "清空",
+  "play_queue_list_title": "播放清單（點擊切換）",
+  "play_queue_empty": "目前沒有播放清單",
+  "play_queue_selected_songs": "多選的歌曲",
+  "play_queue_search_result": "搜尋：{name}",
+  "play_queue_downloaded": "已下載"
 }

@@ -6,7 +6,7 @@ import ListMenu, { type ListMenuType, type Position, type SelectInfo } from './L
 import ListMusicMultiAdd, { type MusicMultiAddModalType as ListAddMultiType } from '@/components/MusicMultiAddModal'
 import ListMusicAdd, { type MusicAddModalType as ListMusicAddType } from '@/components/MusicAddModal'
 import MultipleModeBar, { type MultipleModeBarType, type SelectMode } from './MultipleModeBar'
-import { clearMusicUrl, handleDislikeMusic, handlePlay, handlePlayLater, handleShare, handleShowMusicSourceDetail } from './listAction'
+import { clearMusicUrl, handleDislikeMusic, handlePlayInList, handlePlaySelected, handlePlayLater, handleShare, handleShowMusicSourceDetail } from './listAction'
 import { createStyle, toast } from '@/utils/tools'
 import MultiSelectActionBar, { type MultiSelectActionBarType } from '@/components/MultiSelectActionBar'
 import { MULTI_SELECT_BAR_HEIGHT } from './MultipleModeBar'
@@ -79,7 +79,7 @@ export default forwardRef<OnlineListType, OnlineListProps>(({
     }
     switch (action) {
       case 'play':
-        handlePlay(selectedList[0], selectedList, hancelExitSelect)
+        handlePlaySelected(selectedList[0], selectedList, hancelExitSelect)
         break
       case 'playLater':
         handlePlayLater(selectedList[0], selectedList, hancelExitSelect)
@@ -91,6 +91,26 @@ export default forwardRef<OnlineListType, OnlineListProps>(({
         listMusicMultiAddRef.current?.show({ selectedList, listId: '', isMove: false })
         break
     }
+  }
+
+  /**
+   * 播放列表中的某一首：整个列表作为播放队列
+   */
+  const handlePlayIndex = (index: number) => {
+    if (onPlayList) {
+      onPlayList(index)
+      return
+    }
+    const list = listRef.current?.getList() ?? []
+    void handlePlayInList(list, index, `online_list__${Date.now()}`)
+  }
+  const handleMenuPlay = (info: SelectInfo) => {
+    if (info.selectedList.length) {
+      handlePlaySelected(info.musicInfo, info.selectedList, hancelExitSelect)
+      return
+    }
+    const index = listRef.current?.getList().indexOf(info.musicInfo) ?? -1
+    if (index > -1) handlePlayIndex(index)
   }
 
   const showMenu = (musicInfo: LX.Music.MusicInfoOnline, index: number, position: Position) => {
@@ -119,7 +139,7 @@ export default forwardRef<OnlineListType, OnlineListProps>(({
           onSelectAll={isAll => multipleModeBarRef.current?.setIsSelectAll(isAll)}
           onRefresh={onRefresh}
           onLoadMore={onLoadMore}
-          onPlayList={onPlayList}
+          onPlayList={handlePlayIndex}
           progressViewOffset={progressViewOffset}
           ListHeaderComponent={ListHeaderComponent}
           checkHomePagerIdle={checkHomePagerIdle}
@@ -148,7 +168,7 @@ export default forwardRef<OnlineListType, OnlineListProps>(({
       <DownloadQualityModal ref={downloadQualityModalRef} onAdded={() => { hancelExitSelect() }} />
       <ListMenu
         ref={listMenuRef}
-        onPlay={info => { handlePlay(info.musicInfo, info.selectedList, hancelExitSelect) }}
+        onPlay={handleMenuPlay}
         onPlayLater={info => { hancelExitSelect(); handlePlayLater(info.musicInfo, info.selectedList, hancelExitSelect) }}
         onCopyName={info => { handleShare(info.musicInfo) }}
         onAdd={handleAddMusic}

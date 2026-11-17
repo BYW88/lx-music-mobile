@@ -674,3 +674,27 @@ export const dislikeMusic = async() => {
   await playNext(true)
 }
 
+
+/**
+ * 播放队列：跳到当前播放列表中的某一首（保留稍后播放队列）
+ * @param index 歌曲在当前播放列表中的位置
+ */
+export const playQueueListIndex = async(index: number) => {
+  const listId = playerState.playInfo.playerListId
+  if (!listId) return
+  const musicInfo = getList(listId)[index]
+  if (!musicInfo) return
+  setPlayMusicInfo(listId, musicInfo)
+  await handlePlay()
+}
+
+/**
+ * 播放队列：立即播放稍后播放队列中的某一首，并将其从稍后播放队列移除
+ * @param index 歌曲在稍后播放队列中的位置
+ */
+export const playQueueTempItem = async(index: number) => {
+  const playMusicInfo = playerState.tempPlayList[index]
+  if (!playMusicInfo) return
+  removeTempPlayList(index)
+  await handlePlayNext(playMusicInfo)
+}
