@@ -1,6 +1,7 @@
 import { forwardRef, useEffect, useImperativeHandle, useRef } from 'react'
 import OnlineList, { type OnlineListType, type OnlineListProps } from '@/components/OnlineList'
 import { search } from '@/core/search/music'
+import { handlePlayInList } from '@/components/OnlineList/listAction'
 import searchMusicState, { type Source } from '@/store/search/music/state'
 
 // export type MusicListProps = Pick<OnlineListProps,
@@ -78,10 +79,16 @@ export default forwardRef<MusicListType, {}>((props, ref) => {
     })
   }
 
+  const handlePlayList: OnlineListProps['onPlayList'] = (index) => {
+    const list = searchMusicState.listInfos[searchMusicState.source]?.list ?? []
+    void handlePlayInList(list, index, `search__${searchMusicState.source}__${searchMusicState.searchText}`, global.i18n.t('play_queue_search_result', { name: searchMusicState.searchText }))
+  }
+
   return <OnlineList
     ref={listRef}
     onRefresh={handleRefresh}
     onLoadMore={handleLoadMore}
+    onPlayList={handlePlayList}
     checkHomePagerIdle
   />
 })

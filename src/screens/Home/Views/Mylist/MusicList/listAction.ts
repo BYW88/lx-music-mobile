@@ -181,6 +181,6 @@ export const handleToggleSource = async(listId: string, musicInfo: LX.Music.Musi
  */
 export const handlePlaySelected = async(listId: string, selectedList: SelectInfo['selectedList']) => {
   if (!selectedList.length) return
-  await setTempList(`multi_select__${listId}`, [...selectedList] as LX.Music.MusicInfoOnline[])
+  await setTempList(`multi_select__${listId}`, [...selectedList] as LX.Music.MusicInfoOnline[], global.i18n.t('play_queue_selected_songs'))
   await playList(LIST_IDS.TEMP, 0)
 }

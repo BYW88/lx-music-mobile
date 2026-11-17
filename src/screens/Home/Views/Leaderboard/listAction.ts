@@ -3,19 +3,28 @@ import { playList } from '@/core/player/player'
 import { getListDetail, getListDetailAll } from '@/core/leaderboard'
 import { LIST_IDS } from '@/config/constant'
 import listState from '@/store/list/state'
+import leaderboardState from '@/store/leaderboard/state'
 import syncSourceList from '@/core/syncSourceList'
 import { confirmDialog, toMD5, toast } from '@/utils/tools'
 
 
 const getListId = (id: string) => `board__${id}`
 
+const getBoardName = (id: string) => {
+  for (const board of Object.values(leaderboardState.boards)) {
+    const item = board?.list.find(b => b.id == id)
+    if (item) return item.name
+  }
+}
+
 export const handlePlay = async(id: string, list?: LX.Music.MusicInfoOnline[], index = 0) => {
   let isPlayingList = false
   // console.log(list)
   const listId = getListId(id)
+  const name = getBoardName(id)
   if (!list?.length) list = (await getListDetail(id, 1)).list
   if (list?.length) {
-    await setTempList(listId, [...list])
+    await setTempList(listId, [...list], name)
     void playList(LIST_IDS.TEMP, index)
     isPlayingList = true
   }
@@ -26,7 +35,7 @@ export const handlePlay = async(id: string, list?: LX.Music.MusicInfoOnline[], i
       await setTempList(listId, [...fullList])
     }
   } else {
-    await setTempList(listId, [...fullList])
+    await setTempList(listId, [...fullList], name)
     void playList(LIST_IDS.TEMP, index)
   }
 }

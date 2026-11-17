@@ -13,6 +13,8 @@ export interface InitState {
 
   tempListMeta: {
     id: string
+    /** 临时列表的来源名称，例如排行榜名、歌单名，用于在播放队列中显示 */
+    name?: string
   }
 
   fetchingListStatus: Record<string, boolean>

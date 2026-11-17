@@ -5,7 +5,7 @@ import { LIST_IDS } from '@/config/constant'
 import listState from '@/store/list/state'
 import syncSourceList from '@/core/syncSourceList'
 import { confirmDialog, toMD5, toast } from '@/utils/tools'
-import { type Source } from '@/store/songlist/state'
+import songlistState, { type Source } from '@/store/songlist/state'
 
 const getListId = (id: string, source: LX.OnlineSource) => `${source}__${id}`
 
@@ -13,9 +13,10 @@ export const handlePlay = async(id: string, source: Source, list?: LX.Music.Musi
   const listId = getListId(id, source)
   let isPlayingList = false
   // console.log(list)
+  const name = songlistState.listDetailInfo.id == id ? songlistState.listDetailInfo.info.name : undefined
   if (!list?.length) list = (await getListDetail(id, source, 1)).list
   if (list?.length) {
-    await setTempList(listId, [...list])
+    await setTempList(listId, [...list], name)
     void playList(LIST_IDS.TEMP, index)
     isPlayingList = true
   }
@@ -26,7 +27,7 @@ export const handlePlay = async(id: string, source: Source, list?: LX.Music.Musi
       await setTempList(listId, [...fullList])
     }
   } else {
-    await setTempList(listId, [...fullList])
+    await setTempList(listId, [...fullList], name)
     void playList(LIST_IDS.TEMP, index)
   }
 }

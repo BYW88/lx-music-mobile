@@ -7,12 +7,10 @@ import { createStyle, getRowInfo, type RowInfoType } from '@/utils/tools'
 import type { Position } from './ListMenu'
 import type { SelectMode } from './MultipleModeBar'
 import { useTheme } from '@/store/theme/hook'
-import settingState from '@/store/setting/state'
 import { MULTI_SELECT_BAR_HEIGHT } from './MultipleModeBar'
 import { MULTI_SELECT_ACTION_BAR_HEIGHT } from '@/components/MultiSelectActionBar'
 import { useI18n } from '@/lang'
 import Text from '@/components/common/Text'
-import { handlePlay } from './listAction'
 import { useSettingValue } from '@/store/setting/hook'
 
 type FlatListType = FlatListProps<LX.Music.MusicInfoOnline>
@@ -158,12 +156,8 @@ const List = forwardRef<ListType, ListProps>(({
       if (isMultiSelectModeRef.current) {
         handleSelect(item, index)
       } else {
-        if (settingState.setting['list.isClickPlayList'] && onPlayList != null) {
-          onPlayList(index)
-        } else {
-          // console.log(currentList[index])
-          handlePlay(currentList[index])
-        }
+        // 单击歌曲：把整个列表作为播放队列，从这首开始播放
+        onPlayList?.(index)
       }
     })
   }

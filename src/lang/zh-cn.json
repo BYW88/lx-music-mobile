@@ -565,5 +565,16 @@
   "version_title_latest": "🎉 当前版本已是最新 🎊",
   "version_title_new": "🌟 发现新版本 🌟",
   "version_title_unknown": "❓ 获取最新版本信息失败 ❓",
-  "version_title_update": "🚀 软件更新 🚀"
+  "version_title_update": "🚀 软件更新 🚀",
+  "play_queue_title": "播放队列",
+  "play_queue_now_playing": "正在播放：{name}",
+  "play_queue_none": "无",
+  "play_queue_list_count": "共 {num} 首",
+  "play_queue_play_later": "稍后播放（{num}，优先播放）",
+  "play_queue_clear": "清空",
+  "play_queue_list_title": "播放列表（点击切换）",
+  "play_queue_empty": "当前没有播放列表",
+  "play_queue_selected_songs": "多选的歌曲",
+  "play_queue_search_result": "搜索：{name}",
+  "play_queue_downloaded": "已下载"
 }

@@ -1,9 +1,8 @@
 import { LIST_IDS } from '@/config/constant'
-import { addListMusics } from '@/core/list'
+import { setTempList } from '@/core/list'
 import { playList, playNext } from '@/core/player/player'
 import { addTempPlayList } from '@/core/player/tempPlayList'
 import settingState from '@/store/setting/state'
-import { getListMusicSync } from '@/utils/listManage'
 import { confirmDialog, openUrl, shareMusic, toast } from '@/utils/tools'
 import { addDislikeInfo, hasDislike } from '@/core/dislikeList'
 import playerState from '@/store/player/state'
@@ -11,16 +10,23 @@ import musicSdk from '@/utils/musicSdk'
 import { toOldMusicInfo } from '@/utils'
 import { clearMusicUrlByMusic } from '@/utils/data'
 
-export const handlePlay = (musicInfo: LX.Music.MusicInfoOnline, selectedList: LX.Music.MusicInfoOnline[] = [], onCancelSelect?: () => void) => {
-  const list = selectedList.length ? selectedList : [musicInfo]
-  // 多选时：全部加入“试听列表”，优先播放点开菜单的那首（若它在选中项内），否则播放第一首
-  const target = list.includes(musicInfo) ? musicInfo : list[0]
-  if (selectedList.length) onCancelSelect?.()
-  void addListMusics(LIST_IDS.DEFAULT, list, settingState.setting['list.addMusicLocationType']).then(() => {
-    const index = getListMusicSync(LIST_IDS.DEFAULT).findIndex(m => m.id == target.id)
-    if (index < 0) return
-    void playList(LIST_IDS.DEFAULT, index)
-  })
+/**
+ * 把整个在线列表（如搜索结果）作为播放队列，从指定位置开始播放
+ */
+export const handlePlayInList = async(list: LX.Music.MusicInfoOnline[], index: number, id: string, name?: string) => {
+  if (!list[index]) return
+  await setTempList(id, [...list], name)
+  await playList(LIST_IDS.TEMP, index)
+}
+
+/**
+ * 多选后播放：只把所选歌曲作为播放队列，优先从点开菜单的那首开始（若它在选中项内）
+ */
+export const handlePlaySelected = (musicInfo: LX.Music.MusicInfoOnline, selectedList: LX.Music.MusicInfoOnline[], onCancelSelect?: () => void) => {
+  if (!selectedList.length) return
+  const index = Math.max(selectedList.indexOf(musicInfo), 0)
+  onCancelSelect?.()
+  void handlePlayInList(selectedList, index, `multi_select__online_${Date.now()}`, global.i18n.t('play_queue_selected_songs'))
 }
 export const handlePlayLater = (musicInfo: LX.Music.MusicInfoOnline, selectedList: LX.Music.MusicInfoOnline[], onCancelSelect: () => void) => {
   if (selectedList.length) {
