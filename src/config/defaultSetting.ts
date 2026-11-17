@@ -73,6 +73,9 @@ const defaultSetting: LX.AppSetting = {
   'download.maxDownloadNum': 3,
   'download.skipExistFile': true,
   'download.isUseOtherSource': true,
+  'download.isEmbedPic': true,
+  'download.isEmbedLyric': true,
+  'download.isDownloadLrc': false,
 
   'sync.enable': false,
 

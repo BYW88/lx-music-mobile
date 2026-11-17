@@ -6,12 +6,13 @@ import RNFS, { type DownloadResult } from 'react-native-fs'
 import downloadState from '@/store/download/state'
 import { event as downloadEvent } from '@/store/download/event'
 import settingState from '@/store/setting/state'
-import { getMusicUrl } from '@/core/music/online'
+import { getMusicUrl, getPicUrl, getLyricInfo } from '@/core/music/online'
 import { getPlayQuality } from '@/core/music/utils'
+import { writeMetadata, writePic, writeLyric } from '@/utils/localMediaMetadata'
 import { getDownloadList, saveDownloadList } from '@/utils/data'
 import { filterFileName, throttle } from '@/utils/common'
 import { externalStorageDirectoryPath, downloadFile, stopDownload } from '@/utils/fs'
-import { formatMusicName, requestStoragePermission, toast } from '@/utils/tools'
+import { formatMusicName, requestStoragePermission, toast, TEMP_FILE_PATH } from '@/utils/tools'
 import { log } from '@/utils/log'
 
 export const DOWNLOAD_STATUS = {
@@ -23,6 +24,10 @@ export const DOWNLOAD_STATUS = {
 } as const
 
 const TEMP_FILE_EXT = '.lxdownload'
+/**
+ * 可选的下载音质，从低到高
+ */
+export const DOWNLOAD_QUALITYS = ['128k', '320k', 'flac', 'flac24bit'] as const
 const MAX_RETRY_NUM = 2
 
 interface RunningTask {
@@ -108,6 +113,93 @@ const setStatusText = (task: LX.Download.ListItem, statusText: string) => {
   emitTaskUpdate(task)
 }
 
+/**
+ * 获取歌曲实际可下载的音质：不高于目标音质的最高可用音质
+ */
+export const getDownloadQuality = (target: LX.Quality, musicInfo: LX.Music.MusicInfoOnline): LX.Quality => {
+  const supported = global.lx.qualityList[musicInfo.source] ?? []
+  let index = DOWNLOAD_QUALITYS.indexOf(target as typeof DOWNLOAD_QUALITYS[number])
+  if (index < 0) index = DOWNLOAD_QUALITYS.length - 1
+  for (; index >= 0; index--) {
+    const quality = DOWNLOAD_QUALITYS[index]
+    if (musicInfo.meta._qualitys[quality] && supported.includes(quality)) return quality
+  }
+  return '128k'
+}
+
+// 修复酷狗源歌词时间格式
+const fixKgLyric = (lrc: string) => /\[00:\d\d:\d\d.\d+\]/.test(lrc) ? lrc.replace(/(?:\[00:(\d\d:\d\d.\d+\]))/gm, '[$1') : lrc
+
+const downloadPic = async(url: string) => {
+  const picPath = `${TEMP_FILE_PATH}/download_pic_${Date.now()}_${Math.random().toString().substring(2, 8)}`
+  if (!await RNFS.exists(TEMP_FILE_PATH)) await RNFS.mkdir(TEMP_FILE_PATH)
+  const { promise } = downloadFile(url, picPath, { connectionTimeout: 15000, readTimeout: 20000 })
+  const result = await promise
+  if (result.statusCode < 200 || result.statusCode >= 300) {
+    await RNFS.unlink(picPath).catch(() => {})
+    throw new Error(`HTTP ${result.statusCode}`)
+  }
+  return picPath
+}
+
+/**
+ * 写入标签信息（标题、歌手、专辑、封面、歌词），并按设置保存 lrc 歌词文件
+ */
+const saveMeta = async(task: LX.Download.ListItem) => {
+  const filePath = task.metadata.filePath
+  const musicInfo = task.metadata.musicInfo
+  const setting = settingState.setting
+  const allowToggleSource = setting['download.isUseOtherSource']
+
+  try {
+    await writeMetadata(filePath, {
+      name: musicInfo.name,
+      singer: musicInfo.singer,
+      albumName: musicInfo.meta.albumName ?? '',
+    })
+  } catch (err) {
+    log.warn('download write metadata failed', musicInfo.name, (err as Error).message)
+  }
+
+  if (setting['download.isEmbedPic']) {
+    let picPath: string | null = null
+    try {
+      const url = await getPicUrl({ musicInfo, isRefresh: false, allowToggleSource })
+      if (url) {
+        picPath = await downloadPic(url)
+        await writePic(filePath, picPath)
+      }
+    } catch (err) {
+      log.warn('download write pic failed', musicInfo.name, (err as Error).message)
+    } finally {
+      if (picPath) void RNFS.unlink(picPath).catch(() => {})
+    }
+  }
+
+  if (setting['download.isEmbedLyric'] || setting['download.isDownloadLrc']) {
+    let lyric = ''
+    try {
+      const lyricInfo = await getLyricInfo({ musicInfo, isRefresh: false, allowToggleSource })
+      lyric = fixKgLyric(lyricInfo.rawlrcInfo?.lyric || lyricInfo.lyric || '')
+    } catch (err) {
+      log.warn('download get lyric failed', musicInfo.name, (err as Error).message)
+    }
+    if (lyric) {
+      if (setting['download.isEmbedLyric']) {
+        await writeLyric(filePath, lyric).catch((err: Error) => {
+          log.warn('download write lyric failed', musicInfo.name, err.message)
+        })
+      }
+      if (setting['download.isDownloadLrc']) {
+        const lrcPath = filePath.substring(0, filePath.lastIndexOf('.')) + '.lrc'
+        await RNFS.writeFile(lrcPath, lyric, 'utf8').catch((err: Error) => {
+          log.warn('download save lrc failed', musicInfo.name, err.message)
+        })
+      }
+    }
+  }
+}
+
 const createDownloadInfo = (musicInfo: LX.Music.MusicInfoOnline, quality: LX.Quality, listId?: string): LX.Download.ListItem => {
   const ext = getExt(quality)
   const fileName = filterFileName(`${formatMusicName(settingState.setting['download.fileName'], musicInfo.name, musicInfo.singer)}.${ext}`)
@@ -157,6 +249,10 @@ const handleComplete = async(task: LX.Download.ListItem, tempPath: string) => {
     handleError(task, (err as Error).message)
     return
   }
+  setStatusText(task, t('download_status_write_meta'))
+  await saveMeta(task).catch((err: Error) => {
+    log.warn('download save meta failed', task.metadata.musicInfo.name, err.message)
+  })
   runningTasks.delete(task.id)
   retryNums.delete(task.id)
   setStatus(task, DOWNLOAD_STATUS.COMPLETED)
@@ -317,7 +413,7 @@ export const createDownloadTasks = async(list: LX.Music.MusicInfo[], quality?: L
   const ids = new Set(downloadState.list.map(task => task.id))
   const tasks: LX.Download.ListItem[] = []
   for (const musicInfo of onlineList) {
-    const task = createDownloadInfo(musicInfo, quality ?? getPlayQuality(settingState.setting['player.playQuality'], musicInfo), listId)
+    const task = createDownloadInfo(musicInfo, quality ? getDownloadQuality(quality, musicInfo) : getPlayQuality(settingState.setting['player.playQuality'], musicInfo), listId)
     if (ids.has(task.id)) continue
     ids.add(task.id)
     tasks.push(task)

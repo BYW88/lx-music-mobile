@@ -372,6 +372,21 @@ declare global {
       'download.isUseOtherSource': boolean
 
       /**
+       * 是否将封面写入歌曲文件
+       */
+      'download.isEmbedPic': boolean
+
+      /**
+       * 是否将歌词写入歌曲文件
+       */
+      'download.isEmbedLyric': boolean
+
+      /**
+       * 是否另存 lrc 歌词文件
+       */
+      'download.isDownloadLrc': boolean
+
+      /**
        * 是否启用同步
        */
       'sync.enable': boolean

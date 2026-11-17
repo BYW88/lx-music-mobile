@@ -12,7 +12,6 @@ import { type Metadata } from '@/components/MetadataEditModal'
 import musicSdk from '@/utils/musicSdk'
 import { getListMusicSync } from '@/utils/listManage'
 import { clearMusicUrlByMusic } from '@/utils/data'
-import { createDownloadTasks } from '@/core/download'
 
 export const handlePlay = (listId: SelectInfo['listId'], index: SelectInfo['index']) => {
   void playList(listId, index)
@@ -175,6 +174,3 @@ export const handleToggleSource = async(listId: string, musicInfo: LX.Music.Musi
   return true
 }
 
-export const handleDownload = async(listId: string, musicInfo: SelectInfo['musicInfo'], selectedList: SelectInfo['selectedList']) => {
-  await createDownloadTasks(selectedList.length ? selectedList : [musicInfo], undefined, listId)
-}
