@@ -101,7 +101,7 @@ export default memo(({ Btn }: MoreMenuBtnProps) => {
   return (
     <>
       <View ref={btnWrapRef} collapsable={false}>
-        <Btn icon="dots-vertical" onPress={showMenu} />
+        <Btn icon="more" onPress={showMenu} />
       </View>
       {menuVisible ? <Menu ref={menuRef} menus={menus} onPress={handleMenuPress} width={200} /> : null}
       <DownloadQualityModal ref={qualityModalRef} />
