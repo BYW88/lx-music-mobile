@@ -23,6 +23,18 @@ export const screenUnkeepAwake = () => {
 
 export const getWIFIIPV4Address = UtilsModule.getWIFIIPV4Address as () => Promise<string>
 
+export type NetworkType = 'wifi' | 'mobile' | 'none' | 'unknown'
+/**
+ * 获取当前网络类型（同步）
+ */
+export const getNetworkType = (): NetworkType => {
+  try {
+    return (UtilsModule.getNetworkType?.() as NetworkType | undefined) ?? 'unknown'
+  } catch {
+    return 'unknown'
+  }
+}
+
 export const getDeviceName = async(): Promise<string> => {
   return UtilsModule.getDeviceName().then((deviceName: string) => deviceName || 'Unknown')
 }

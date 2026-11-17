@@ -7,6 +7,10 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.graphics.Rect;
+import android.net.ConnectivityManager;
+import android.net.Network;
+import android.net.NetworkCapabilities;
+import android.net.NetworkInfo;
 import android.net.Uri;
 import android.net.wifi.WifiInfo;
 import android.net.wifi.WifiManager;
@@ -218,6 +222,37 @@ public class UtilsModule extends ReactContextBaseJavaModule {
         }
       }
     }).start();
+  }
+
+  /**
+   获取当前网络类型（同步调用）
+   @return wifi: WiFi / 以太网；mobile: 移动数据；none: 无网络；unknown: 无法判断
+   */
+  @ReactMethod(isBlockingSynchronousMethod = true)
+  public String getNetworkType() {
+    try {
+      ConnectivityManager cm = (ConnectivityManager) reactContext.getApplicationContext().getSystemService(Context.CONNECTIVITY_SERVICE);
+      if (cm == null) return "unknown";
+      if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+        Network network = cm.getActiveNetwork();
+        if (network == null) return "none";
+        NetworkCapabilities caps = cm.getNetworkCapabilities(network);
+        if (caps == null) return "unknown";
+        if (caps.hasTransport(NetworkCapabilities.TRANSPORT_WIFI) || caps.hasTransport(NetworkCapabilities.TRANSPORT_ETHERNET)) return "wifi";
+        if (caps.hasTransport(NetworkCapabilities.TRANSPORT_CELLULAR)) return "mobile";
+        // 例如 VPN 未暴露底层网络类型时，按是否计费判断
+        return cm.isActiveNetworkMetered() ? "mobile" : "wifi";
+      } else {
+        NetworkInfo info = cm.getActiveNetworkInfo();
+        if (info == null || !info.isConnected()) return "none";
+        int type = info.getType();
+        if (type == ConnectivityManager.TYPE_WIFI || type == ConnectivityManager.TYPE_ETHERNET) return "wifi";
+        if (type == ConnectivityManager.TYPE_MOBILE) return "mobile";
+        return cm.isActiveNetworkMetered() ? "mobile" : "wifi";
+      }
+    } catch (Exception e) {
+      return "unknown";
+    }
   }
 
   // https://stackoverflow.com/a/26117646
