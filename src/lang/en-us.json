@@ -122,6 +122,7 @@
   "list_multi_add_title_first_add": "Add the selected",
   "list_multi_add_title_first_move": "Move the selected",
   "list_multi_add_title_last": "songs to ...",
+  "list_multi_select_empty_tip": "Select some songs first",
   "list_name_default": "Default",
   "list_name_love": "Loved",
   "list_name_temp": "Temp List",

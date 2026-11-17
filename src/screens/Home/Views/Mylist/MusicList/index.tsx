@@ -2,11 +2,13 @@ import { useCallback, useRef } from 'react'
 
 import listState from '@/store/list/state'
 import ListMenu, { type ListMenuType, type Position, type SelectInfo } from './ListMenu'
-import { clearMusicUrl, handleDislikeMusic, handlePlay, handlePlayLater, handleRemove, handleShare, handleShowMusicSourceDetail, handleUpdateMusicInfo, handleUpdateMusicPosition } from './listAction'
+import { clearMusicUrl, handleDislikeMusic, handlePlay, handlePlayLater, handlePlaySelected, handleRemove, handleShare, handleShowMusicSourceDetail, handleUpdateMusicInfo, handleUpdateMusicPosition } from './listAction'
 import List, { type ListType } from './List'
 import ListMusicAdd, { type MusicAddModalType as ListMusicAddType } from '@/components/MusicAddModal'
 import ListMusicMultiAdd, { type MusicMultiAddModalType as ListAddMultiType } from '@/components/MusicMultiAddModal'
-import { createStyle } from '@/utils/tools'
+import { createStyle, toast } from '@/utils/tools'
+import MultiSelectActionBar, { type MultiSelectActionBarType } from '@/components/MultiSelectActionBar'
+import { useI18n } from '@/lang'
 import { type LayoutChangeEvent, View } from 'react-native'
 import ActiveList, { type ActiveListType } from './ActiveList'
 import MultipleModeBar, { type SelectMode, type MultipleModeBarType } from './MultipleModeBar'
@@ -31,6 +33,8 @@ export default () => {
   const metadataEditTypeRef = useRef<MetadataEditType>(null)
   const listMenuRef = useRef<ListMenuType>(null)
   const downloadQualityModalRef = useRef<DownloadQualityModalType>(null)
+  const multiSelectActionBarRef = useRef<MultiSelectActionBarType>(null)
+  const t = useI18n()
   const musicToggleModalRef = useRef<MusicToggleModalType>(null)
   const layoutHeightRef = useRef<number>(0)
   const isShowMultipleModeBar = useRef(false)
@@ -44,6 +48,7 @@ export default () => {
     } else activeListRef.current?.setVisibleBar(false)
     isShowMultipleModeBar.current = true
     multipleModeBarRef.current?.show()
+    multiSelectActionBarRef.current?.show()
     listRef.current?.setIsMultiSelectMode(true)
   }, [])
   const hancelExitSelect = useCallback(() => {
@@ -52,9 +57,40 @@ export default () => {
     } else activeListRef.current?.setVisibleBar(true)
     // console.log('hancelExitSelect', isShowSearchBarModeBar.current)
     multipleModeBarRef.current?.exitSelectMode()
+    multiSelectActionBarRef.current?.hide()
     listRef.current?.setIsMultiSelectMode(false)
     isShowMultipleModeBar.current = false
   }, [])
+
+  const handleMultiSelectAction = (action: string) => {
+    const selectedList = listRef.current?.getSelectedList() ?? []
+    if (!selectedList.length) {
+      toast(t('list_multi_select_empty_tip'))
+      return
+    }
+    const listId = listState.activeListId
+    switch (action) {
+      case 'play':
+        void handlePlaySelected(listId, selectedList)
+        hancelExitSelect()
+        break
+      case 'playLater':
+        handlePlayLater(listId, selectedList[0], selectedList, hancelExitSelect)
+        break
+      case 'download':
+        downloadQualityModalRef.current?.show({ list: selectedList, listId })
+        break
+      case 'add':
+        listMusicMultiAddRef.current?.show({ selectedList, listId, isMove: false })
+        break
+      case 'move':
+        listMusicMultiAddRef.current?.show({ selectedList, listId, isMove: true })
+        break
+      case 'remove':
+        handleRemove(listId, selectedList[0], selectedList, hancelExitSelect)
+        break
+    }
+  }
   const hancelSwitchSelectMode = useCallback((mode: SelectMode) => {
     multipleModeBarRef.current?.setSwitchMode(mode)
     listRef.current?.setSelectMode(mode)
@@ -148,6 +184,18 @@ export default () => {
           ref={listMusicSearchRef}
           onScrollToInfo={handleScrollToInfo}
         />
+        <MultiSelectActionBar
+          ref={multiSelectActionBarRef}
+          actions={[
+            { id: 'play', label: t('play') },
+            { id: 'playLater', label: t('play_later') },
+            { id: 'download', label: t('download') },
+            { id: 'add', label: t('add_to') },
+            { id: 'move', label: t('move_to') },
+            { id: 'remove', label: t('delete') },
+          ]}
+          onAction={handleMultiSelectAction}
+        />
       </View>
       <ListMusicAdd ref={listMusicAddRef} onAdded={hancelExitSelect} />
       <ListMusicMultiAdd ref={listMusicMultiAddRef} onAdded={hancelExitSelect} />
@@ -156,7 +204,12 @@ export default () => {
       <DownloadQualityModal ref={downloadQualityModalRef} onAdded={hancelExitSelect} />
       <ListMenu
         ref={listMenuRef}
-        onPlay={info => { handlePlay(info.listId, info.index) }}
+        onPlay={info => {
+          if (info.selectedList.length) {
+            void handlePlaySelected(info.listId, info.selectedList)
+            hancelExitSelect()
+          } else handlePlay(info.listId, info.index)
+        }}
         onPlayLater={info => { hancelExitSelect(); handlePlayLater(info.listId, info.musicInfo, info.selectedList, hancelExitSelect) }}
         onRemove={info => { hancelExitSelect(); handleRemove(info.listId, info.musicInfo, info.selectedList, hancelExitSelect) }}
         onDislikeMusic={info => { void handleDislikeMusic(info.musicInfo) }}

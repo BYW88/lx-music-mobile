@@ -1,5 +1,6 @@
-import { addListMusics, removeListMusics, updateListMusicPosition, updateListMusics } from '@/core/list'
+import { addListMusics, removeListMusics, setTempList, updateListMusicPosition, updateListMusics } from '@/core/list'
 import { playList, playListById, playNext } from '@/core/player/player'
+import { LIST_IDS } from '@/config/constant'
 import { addTempPlayList } from '@/core/player/tempPlayList'
 import settingState from '@/store/setting/state'
 import { similar, sortInsert, toOldMusicInfo } from '@/utils'
@@ -174,3 +175,12 @@ export const handleToggleSource = async(listId: string, musicInfo: LX.Music.Musi
   return true
 }
 
+
+/**
+ * 播放多选的歌曲：用所选歌曲替换临时列表并从第一首开始播放
+ */
+export const handlePlaySelected = async(listId: string, selectedList: SelectInfo['selectedList']) => {
+  if (!selectedList.length) return
+  await setTempList(`multi_select__${listId}`, [...selectedList] as LX.Music.MusicInfoOnline[])
+  await playList(LIST_IDS.TEMP, 0)
+}

@@ -1,5 +1,5 @@
 import { LIST_IDS } from '@/config/constant'
-import { addListMusics } from '@/core/list'
+import { addListMusics, setTempList } from '@/core/list'
 import { playList, playNext } from '@/core/player/player'
 import { addTempPlayList } from '@/core/player/tempPlayList'
 import settingState from '@/store/setting/state'
@@ -64,3 +64,11 @@ export const handleDislikeMusic = async(musicInfo: LX.Music.MusicInfoOnline) => 
 }
 
 
+/**
+ * 播放多选的歌曲：用所选歌曲替换临时列表并从第一首开始播放
+ */
+export const handlePlaySelected = async(selectedList: LX.Music.MusicInfoOnline[]) => {
+  if (!selectedList.length) return
+  await setTempList('multi_select', [...selectedList])
+  await playList(LIST_IDS.TEMP, 0)
+}

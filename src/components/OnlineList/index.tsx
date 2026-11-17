@@ -6,8 +6,11 @@ import ListMenu, { type ListMenuType, type Position, type SelectInfo } from './L
 import ListMusicMultiAdd, { type MusicMultiAddModalType as ListAddMultiType } from '@/components/MusicMultiAddModal'
 import ListMusicAdd, { type MusicAddModalType as ListMusicAddType } from '@/components/MusicAddModal'
 import MultipleModeBar, { type MultipleModeBarType, type SelectMode } from './MultipleModeBar'
-import { clearMusicUrl, handleDislikeMusic, handlePlay, handlePlayLater, handleShare, handleShowMusicSourceDetail } from './listAction'
-import { createStyle } from '@/utils/tools'
+import { clearMusicUrl, handleDislikeMusic, handlePlay, handlePlaySelected, handlePlayLater, handleShare, handleShowMusicSourceDetail } from './listAction'
+import { createStyle, toast } from '@/utils/tools'
+import MultiSelectActionBar, { type MultiSelectActionBarType } from '@/components/MultiSelectActionBar'
+import { MULTI_SELECT_BAR_HEIGHT } from './MultipleModeBar'
+import { useI18n } from '@/lang'
 import DownloadQualityModal, { type DownloadQualityModalType } from '@/components/DownloadQualityModal'
 
 export interface OnlineListProps {
@@ -39,6 +42,8 @@ export default forwardRef<OnlineListType, OnlineListProps>(({
   const listMusicMultiAddRef = useRef<ListAddMultiType>(null)
   const listMenuRef = useRef<ListMenuType>(null)
   const downloadQualityModalRef = useRef<DownloadQualityModalType>(null)
+  const multiSelectActionBarRef = useRef<MultiSelectActionBarType>(null)
+  const t = useI18n()
   // const loadingMaskRef = useRef<LoadingMaskType>(null)
 
   useImperativeHandle(ref, () => ({
@@ -53,6 +58,7 @@ export default forwardRef<OnlineListType, OnlineListProps>(({
 
   const hancelMultiSelect = () => {
     multipleModeBarRef.current?.show()
+    multiSelectActionBarRef.current?.show()
     listRef.current?.setIsMultiSelectMode(true)
   }
   const hancelSwitchSelectMode = (mode: SelectMode) => {
@@ -61,7 +67,31 @@ export default forwardRef<OnlineListType, OnlineListProps>(({
   }
   const hancelExitSelect = () => {
     multipleModeBarRef.current?.exitSelectMode()
+    multiSelectActionBarRef.current?.hide()
     listRef.current?.setIsMultiSelectMode(false)
+  }
+
+  const handleMultiSelectAction = (action: string) => {
+    const selectedList = listRef.current?.getSelectedList() ?? []
+    if (!selectedList.length) {
+      toast(t('list_multi_select_empty_tip'))
+      return
+    }
+    switch (action) {
+      case 'play':
+        void handlePlaySelected(selectedList)
+        hancelExitSelect()
+        break
+      case 'playLater':
+        handlePlayLater(selectedList[0], selectedList, hancelExitSelect)
+        break
+      case 'download':
+        downloadQualityModalRef.current?.show({ list: selectedList })
+        break
+      case 'add':
+        listMusicMultiAddRef.current?.show({ selectedList, listId: '', isMove: false })
+        break
+    }
   }
 
   const showMenu = (musicInfo: LX.Music.MusicInfoOnline, index: number, position: Position) => {
@@ -96,6 +126,17 @@ export default forwardRef<OnlineListType, OnlineListProps>(({
           checkHomePagerIdle={checkHomePagerIdle}
           rowType={rowType}
         />
+        <MultiSelectActionBar
+          ref={multiSelectActionBarRef}
+          bottom={MULTI_SELECT_BAR_HEIGHT}
+          actions={[
+            { id: 'play', label: t('play') },
+            { id: 'playLater', label: t('play_later') },
+            { id: 'download', label: t('download') },
+            { id: 'add', label: t('add_to') },
+          ]}
+          onAction={handleMultiSelectAction}
+        />
         <MultipleModeBar
           ref={multipleModeBarRef}
           onSwitchMode={hancelSwitchSelectMode}
@@ -108,7 +149,12 @@ export default forwardRef<OnlineListType, OnlineListProps>(({
       <DownloadQualityModal ref={downloadQualityModalRef} onAdded={() => { hancelExitSelect() }} />
       <ListMenu
         ref={listMenuRef}
-        onPlay={info => { handlePlay(info.musicInfo) }}
+        onPlay={info => {
+          if (info.selectedList.length) {
+            void handlePlaySelected(info.selectedList)
+            hancelExitSelect()
+          } else handlePlay(info.musicInfo)
+        }}
         onPlayLater={info => { hancelExitSelect(); handlePlayLater(info.musicInfo, info.selectedList, hancelExitSelect) }}
         onCopyName={info => { handleShare(info.musicInfo) }}
         onAdd={handleAddMusic}
