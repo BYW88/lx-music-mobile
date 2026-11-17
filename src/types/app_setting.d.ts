@@ -22,6 +22,11 @@ declare global {
       'common.apiSource': string
 
       /**
+       * 自定义源取链接失败时，自动切换到下一个自定义源
+       */
+      'common.userApiAutoSwitch': boolean
+
+      /**
        * 音源名称类型，原名、别名
        */
       'common.sourceNameType': 'alias' | 'real'
