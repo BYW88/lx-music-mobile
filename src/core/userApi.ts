@@ -1,5 +1,5 @@
 import { action, state } from '@/store/userApi'
-import { addUserApi, getUserApiScript, removeUserApi as removeUserApiFromStore, setUserApiAllowShowUpdateAlert as setUserApiAllowShowUpdateAlertFromStore } from '@/utils/data'
+import { addUserApi, getUserApiScript, moveUserApi as moveUserApiFromStore, removeUserApi as removeUserApiFromStore, setUserApiAllowShowUpdateAlert as setUserApiAllowShowUpdateAlertFromStore } from '@/utils/data'
 import { destroy, loadScript } from '@/utils/nativeModules/userApi'
 import { log as writeLog } from '@/utils/log'
 
@@ -34,6 +34,11 @@ export const importUserApi = async(script: string) => {
 
 export const removeUserApi = async(ids: string[]) => {
   const list = await removeUserApiFromStore(ids)
+  action.setUserApiList(list)
+}
+
+export const moveUserApi = async(id: string, offset: number) => {
+  const list = await moveUserApiFromStore(id, offset)
   action.setUserApiList(list)
 }
 

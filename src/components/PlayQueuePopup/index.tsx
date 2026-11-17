@@ -12,6 +12,7 @@ import listState from '@/store/list/state'
 import { LIST_IDS, LIST_ITEM_HEIGHT, MUSIC_TOGGLE_MODE } from '@/config/constant'
 import { scaleSizeH } from '@/utils/pixelRatio'
 import Badge from '@/components/common/Badge'
+import DownloadedMark from '@/components/DownloadedMark'
 import { useAssertApiSupport } from '@/store/common/hook'
 import { getList } from '@/core/player/playInfo'
 import { playQueueListIndex, playQueueTempItem } from '@/core/player/player'
@@ -121,6 +122,7 @@ const Row = memo(({ index, musicInfo, active, sn, onPress, onRemove, isShowAlbum
           <Text color={active ? theme['c-primary-font'] : theme['c-font']} numberOfLines={1}>{info.name}</Text>
           <View style={styles.listItemSingle}>
             <Badge>{info.source.toUpperCase()}</Badge>
+            <DownloadedMark musicId={info.id} />
             <Text style={styles.listItemSingleText} size={11} color={active ? theme['c-primary-alpha-200'] : theme['c-500']} numberOfLines={1}>
               {singer}
             </Text>

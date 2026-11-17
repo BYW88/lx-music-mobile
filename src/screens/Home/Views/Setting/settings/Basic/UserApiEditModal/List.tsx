@@ -6,7 +6,7 @@ import { useTheme } from '@/store/theme/hook'
 import { useI18n } from '@/lang'
 import { useUserApiList, state as userApiState } from '@/store/userApi'
 import { useSettingValue } from '@/store/setting/hook'
-import { removeUserApi, setUserApiAllowShowUpdateAlert } from '@/core/userApi'
+import { moveUserApi, removeUserApi, setUserApiAllowShowUpdateAlert } from '@/core/userApi'
 import { BorderRadius } from '@/theme'
 import CheckBox from '@/components/common/CheckBox'
 import { Icon } from '@/components/common/Icon'
@@ -17,9 +17,12 @@ import { setApiSource } from '@/core/apiSource'
 const formatVersionName = (version: string) => {
   return /^\d/.test(version) ? `v${version}` : version
 }
-const ListItem = ({ item, activeId, onRemove, onChangeAllowShowUpdateAlert }: {
+const ListItem = ({ item, index, total, activeId, onRemove, onMove, onChangeAllowShowUpdateAlert }: {
   item: LX.UserApi.UserApiInfo
+  index: number
+  total: number
   activeId: string
+  onMove: (id: string, offset: number) => void
   onRemove: (id: string, name: string) => void
   onChangeAllowShowUpdateAlert: (id: string, enabled: boolean) => void
 }) => {
@@ -56,6 +59,18 @@ const ListItem = ({ item, activeId, onRemove, onChangeAllowShowUpdateAlert }: {
         <CheckBox check={item.allowShowUpdateAlert} label={t('user_api_allow_show_update_alert')} onChange={changeAllowShowUpdateAlert} size={0.86} />
       </View>
       <View style={styles.listItemRight}>
+        {
+          total > 1 ? (
+            <>
+              <TouchableOpacity style={styles.btn} disabled={index == 0} onPress={() => { onMove(item.id, -1) }}>
+                <Icon name="chevron-left" style={styles.iconUp} color={index == 0 ? theme['c-font-label'] : theme['c-button-font']} />
+              </TouchableOpacity>
+              <TouchableOpacity style={styles.btn} disabled={index == total - 1} onPress={() => { onMove(item.id, 1) }}>
+                <Icon name="chevron-left" style={styles.iconDown} color={index == total - 1 ? theme['c-font-label'] : theme['c-button-font']} />
+              </TouchableOpacity>
+            </>
+          ) : null
+        }
         <TouchableOpacity style={styles.btn} onPress={handleRemove}>
           <Icon name="close" color={theme['c-button-font']} />
         </TouchableOpacity>
@@ -95,6 +110,9 @@ export default () => {
       }
     })
   }, [])
+  const handleMove = useCallback((id: string, offset: number) => {
+    void moveUserApi(id, offset)
+  }, [])
   const handleChangeAllowShowUpdateAlert = useCallback((id: string, enabled: boolean) => {
     void setUserApiAllowShowUpdateAlert(id, enabled)
   }, [])
@@ -104,13 +122,16 @@ export default () => {
       <View onStartShouldSetResponder={() => true}>
         {
           userApiList.length
-            ? userApiList.map((item) => {
+            ? userApiList.map((item, index) => {
               return (
               <ListItem
                 key={item.id}
                 item={item}
+                index={index}
+                total={userApiList.length}
                 activeId={apiSource}
                 onRemove={handleRemove}
+                onMove={handleMove}
                 onChangeAllowShowUpdateAlert={handleChangeAllowShowUpdateAlert}
               />
               )
@@ -146,6 +167,8 @@ const styles = createStyle({
   },
   listItemRight: {
     flex: 0,
+    flexDirection: 'row',
+    alignItems: 'center',
     // backgroundColor: 'rgba(0, 0, 0, 0.2)',
   },
   // btns: {
@@ -154,6 +177,12 @@ const styles = createStyle({
   btn: {
     padding: 10,
     // backgroundColor: 'rgba(0, 0, 0, 0.2)',
+  },
+  iconUp: {
+    transform: [{ rotate: '90deg' }],
+  },
+  iconDown: {
+    transform: [{ rotate: '-90deg' }],
   },
   tipText: {
     textAlign: 'center',

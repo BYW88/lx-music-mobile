@@ -79,6 +79,10 @@ export const storageDataPrefix = {
 
   downloadList: '@download_list',
 
+  tempPlayList: '@temp_play_list',
+
+  userApiPreferred: '@user_api_preferred',
+
   userApi: '@user_api__',
 } as const
 

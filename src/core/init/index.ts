@@ -9,6 +9,7 @@ import initSync from './sync'
 import initCommonState from './common'
 import { initDeeplink } from './deeplink'
 import { setApiSource } from '@/core/apiSource'
+import { getStartupApiSource } from '@/core/userApiFallback'
 import commonActions from '@/store/common/action'
 import settingState from '@/store/setting/state'
 import { checkUpdate } from '@/core/version'
@@ -48,7 +49,8 @@ export default async() => {
   await initUserApi(setting)
   bootLog('User Api inited.')
 
-  setApiSource(setting['common.apiSource'])
+  // 上次运行中自动切换过自定义源的话，启动时切回首选源
+  setApiSource(await getStartupApiSource(setting['common.apiSource']))
   bootLog('Api inited.')
 
   registerPlaybackService()
