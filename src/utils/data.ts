@@ -590,3 +590,10 @@ export const setUserApiAllowShowUpdateAlert = async(id: string, enable: boolean)
   targetApi.allowShowUpdateAlert = enable
   await saveData(userApiPrefix, userApis)
 }
+
+export const getDownloadList = async() => {
+  return await getData<LX.Download.ListItem[]>(storageDataPrefix.downloadList) ?? []
+}
+export const saveDownloadList = async(list: LX.Download.ListItem[]) => {
+  await saveData(storageDataPrefix.downloadList, list)
+}

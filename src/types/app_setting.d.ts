@@ -352,6 +352,26 @@ declare global {
       'download.fileName': '歌名 - 歌手' | '歌手 - 歌名' | '歌名'
 
       /**
+       * 下载保存目录，为空时使用默认目录（Music/lx-music）
+       */
+      'download.savePath': string
+
+      /**
+       * 同时下载任务数
+       */
+      'download.maxDownloadNum': number
+
+      /**
+       * 跳过已存在的文件
+       */
+      'download.skipExistFile': boolean
+
+      /**
+       * 下载失败时是否尝试换源
+       */
+      'download.isUseOtherSource': boolean
+
+      /**
        * 是否启用同步
        */
       'sync.enable': boolean
