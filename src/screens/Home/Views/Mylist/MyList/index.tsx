@@ -7,6 +7,9 @@ import ListImportExport, { type ListImportExportType } from './ListImportExport'
 import { handleRemove, handleSync } from './listAction'
 import ListMusicSort, { type ListMusicSortType } from './ListMusicSort'
 import DuplicateMusic, { type DuplicateMusicType } from './DuplicateMusic'
+import DownloadQualityModal, { type DownloadQualityModalType } from '@/components/DownloadQualityModal'
+import { getListMusics } from '@/core/list'
+import { toast } from '@/utils/tools'
 
 
 export default () => {
@@ -16,6 +19,7 @@ export default () => {
   const listMusicSortRef = useRef<ListMusicSortType>(null)
   const duplicateMusicRef = useRef<DuplicateMusicType>(null)
   const listImportExportRef = useRef<ListImportExportType>(null)
+  const downloadQualityModalRef = useRef<DownloadQualityModalType>(null)
 
   useEffect(() => {
     let isInited = false
@@ -53,7 +57,17 @@ export default () => {
             onRemove={info => { handleRemove(info) }}
             onSync={info => { handleSync(info) }}
             onSelectLocalFile={(info, position) => listImportExportRef.current?.selectFile(info, position)}
+            onDownload={info => {
+              void getListMusics(info.id).then(list => {
+                if (!list.length) {
+                  toast(global.i18n.t('download_all_empty'))
+                  return
+                }
+                downloadQualityModalRef.current?.show({ list, listId: info.id })
+              })
+            }}
           />
+          <DownloadQualityModal ref={downloadQualityModalRef} />
           {/* <ImportExport actionType={actionType} visible={isShowChoosePath} hide={() => setShowChoosePath(false)} selectedListRef={selectedListRef} /> */}
         </>
       : null
