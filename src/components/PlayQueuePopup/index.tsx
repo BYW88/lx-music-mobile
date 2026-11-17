@@ -9,17 +9,19 @@ import { useSettingValue } from '@/store/setting/hook'
 import { createStyle } from '@/utils/tools'
 import playerState from '@/store/player/state'
 import listState from '@/store/list/state'
-import { LIST_IDS, MUSIC_TOGGLE_MODE } from '@/config/constant'
+import { LIST_IDS, LIST_ITEM_HEIGHT, MUSIC_TOGGLE_MODE } from '@/config/constant'
+import { scaleSizeH } from '@/utils/pixelRatio'
+import Badge from '@/components/common/Badge'
+import { useAssertApiSupport } from '@/store/common/hook'
 import { getList } from '@/core/player/playInfo'
 import { playQueueListIndex, playQueueTempItem } from '@/core/player/player'
 import { clearTempPlayeList, removeTempPlayList } from '@/core/player/tempPlayList'
 
 type MusicInfo = LX.Music.MusicInfo | LX.Download.ListItem
 
-const ITEM_HEIGHT = 48
+const ITEM_HEIGHT = scaleSizeH(LIST_ITEM_HEIGHT)
 
-const getMusicName = (musicInfo: MusicInfo) => 'progress' in musicInfo ? musicInfo.metadata.musicInfo.name : musicInfo.name
-const getMusicSinger = (musicInfo: MusicInfo) => 'progress' in musicInfo ? musicInfo.metadata.musicInfo.singer : musicInfo.singer
+const getBaseMusicInfo = (musicInfo: MusicInfo): LX.Music.MusicInfo => 'progress' in musicInfo ? musicInfo.metadata.musicInfo : musicInfo
 
 const getListName = (listId: string | null) => {
   if (!listId) return ''
@@ -90,28 +92,56 @@ const useQueueInfo = () => {
   return info
 }
 
-const Row = memo(({ index, musicInfo, active, onPress, onRemove }: {
+const Row = memo(({ index, musicInfo, active, sn, onPress, onRemove, isShowAlbumName, isShowInterval }: {
   index: number
   musicInfo: MusicInfo
   active: boolean
+  /** 左侧显示的序号 */
+  sn: number
   onPress: (index: number) => void
   onRemove?: (index: number) => void
+  isShowAlbumName: boolean
+  isShowInterval: boolean
 }) => {
   const theme = useTheme()
-  const color = active ? theme['c-primary-font'] : undefined
+  const info = getBaseMusicInfo(musicInfo)
+  const isSupported = useAssertApiSupport(info.source)
+  const singer = `${info.singer}${isShowAlbumName && info.meta.albumName ? ` · ${info.meta.albumName}` : ''}`
+
+  // 外观与“我的列表”的歌曲行保持一致
   return (
-    <TouchableOpacity style={styles.row} activeOpacity={0.6} onPress={() => { onPress(index) }}>
-      <View style={styles.rowLeft}>
-        {active ? <Icon name="play" color={theme['c-primary-font']} size={12} style={styles.activeIcon} /> : null}
-        <Text size={14} color={color} numberOfLines={1} style={styles.rowName}>{getMusicName(musicInfo)}</Text>
-        <Text size={12} color={color ?? theme['c-font-label']} numberOfLines={1} style={styles.rowSinger}> - {getMusicSinger(musicInfo)}</Text>
-      </View>
-      {onRemove
-        ? <TouchableOpacity style={styles.removeBtn} onPress={() => { onRemove(index) }}>
-            <Icon name="close" color={theme['c-font-label']} size={12} />
-          </TouchableOpacity>
-        : null}
-    </TouchableOpacity>
+    <View style={{ ...styles.listItem, height: ITEM_HEIGHT, opacity: isSupported ? 1 : 0.5 }}>
+      <TouchableOpacity style={styles.listItemLeft} onPress={() => { onPress(index) }}>
+        {
+          active
+            ? <Icon style={styles.sn} name="play-outline" size={13} color={theme['c-primary-font']} />
+            : <Text style={styles.sn} size={13} color={theme['c-300']}>{sn}</Text>
+        }
+        <View style={styles.itemInfo}>
+          <Text color={active ? theme['c-primary-font'] : theme['c-font']} numberOfLines={1}>{info.name}</Text>
+          <View style={styles.listItemSingle}>
+            <Badge>{info.source.toUpperCase()}</Badge>
+            <Text style={styles.listItemSingleText} size={11} color={active ? theme['c-primary-alpha-200'] : theme['c-500']} numberOfLines={1}>
+              {singer}
+            </Text>
+          </View>
+        </View>
+        {
+          isShowInterval && info.interval ? (
+            <Text style={styles.interval} size={12} color={active ? theme['c-primary-alpha-400'] : theme['c-250']} numberOfLines={1}>{info.interval}</Text>
+          ) : null
+        }
+      </TouchableOpacity>
+      {
+        onRemove
+          ? (
+              <TouchableOpacity onPress={() => { onRemove(index) }} style={styles.moreButton}>
+                <Icon name="close" style={{ color: theme['c-350'] }} size={12} />
+              </TouchableOpacity>
+            )
+          : <View style={styles.rightPlaceholder} />
+      }
+    </View>
   )
 })
 
@@ -119,6 +149,8 @@ const QueueContent = () => {
   const t = useI18n()
   const theme = useTheme()
   const togglePlayMethod = useSettingValue('player.togglePlayMethod')
+  const isShowAlbumName = useSettingValue('list.isShowAlbumName')
+  const isShowInterval = useSettingValue('list.isShowInterval')
   const info = useQueueInfo()
   const flatListRef = useRef<FlatList<MusicInfo>>(null)
 
@@ -133,7 +165,7 @@ const QueueContent = () => {
   }, [])
 
   const renderItem: FlatListProps<MusicInfo>['renderItem'] = ({ item, index }) => (
-    <Row index={index} musicInfo={item} active={index == info.activeIndex} onPress={handlePlayList} />
+    <Row index={index} sn={index + 1} musicInfo={item} active={index == info.activeIndex} onPress={handlePlayList} isShowAlbumName={isShowAlbumName} isShowInterval={isShowInterval} />
   )
   const getItemLayout: FlatListProps<MusicInfo>['getItemLayout'] = (data, index) => ({ length: ITEM_HEIGHT, offset: ITEM_HEIGHT * index, index })
 
@@ -158,7 +190,7 @@ const QueueContent = () => {
                 </View>
                 <ScrollView style={styles.tempList} nestedScrollEnabled>
                   {info.tempPlayList.map((item, index) => (
-                    <Row key={`${item.musicInfo.id}_${index}`} index={index} musicInfo={item.musicInfo} active={false} onPress={handlePlayTemp} onRemove={handleRemoveTemp} />
+                    <Row key={`${item.musicInfo.id}_${index}`} index={index} sn={index + 1} musicInfo={item.musicInfo} active={false} onPress={handlePlayTemp} onRemove={handleRemoveTemp} isShowAlbumName={isShowAlbumName} isShowInterval={isShowInterval} />
                   ))}
                 </ScrollView>
               </View>
@@ -179,7 +211,7 @@ const QueueContent = () => {
                 keyExtractor={(item, index) => `${item.id}_${index}`}
                 getItemLayout={getItemLayout}
                 initialScrollIndex={initialScrollIndex < info.list.length ? initialScrollIndex : 0}
-                extraData={info.activeIndex}
+                extraData={`${info.activeIndex}_${isShowAlbumName}_${isShowInterval}`}
                 removeClippedSubviews
               />
             )
@@ -254,32 +286,48 @@ const styles = createStyle({
   list: {
     flexShrink: 1,
   },
-  row: {
-    height: ITEM_HEIGHT,
+  listItem: {
     flexDirection: 'row',
+    flexWrap: 'nowrap',
+    paddingRight: 2,
     alignItems: 'center',
-    paddingLeft: 15,
   },
-  rowLeft: {
+  listItemLeft: {
     flex: 1,
     flexDirection: 'row',
     alignItems: 'center',
-    paddingRight: 15,
   },
-  activeIcon: {
-    marginRight: 6,
+  sn: {
+    width: 38,
+    textAlign: 'center',
+    paddingLeft: 3,
+    paddingRight: 3,
   },
-  rowName: {
+  itemInfo: {
+    flexGrow: 1,
     flexShrink: 1,
+    paddingRight: 2,
   },
-  rowSinger: {
-    flexShrink: 10,
+  listItemSingle: {
+    paddingTop: 3,
+    flexDirection: 'row',
   },
-  removeBtn: {
-    width: ITEM_HEIGHT,
-    height: ITEM_HEIGHT,
+  listItemSingleText: {
+    flexGrow: 0,
+    flexShrink: 1,
+    fontWeight: '300',
+  },
+  interval: {
+    paddingLeft: 4,
+  },
+  moreButton: {
+    height: '80%',
+    paddingLeft: 16,
+    paddingRight: 16,
     justifyContent: 'center',
-    alignItems: 'center',
+  },
+  rightPlaceholder: {
+    width: 12,
   },
   empty: {
     paddingHorizontal: 15,
