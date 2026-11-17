@@ -11,9 +11,13 @@ import musicSdk from '@/utils/musicSdk'
 import { toOldMusicInfo } from '@/utils'
 import { clearMusicUrlByMusic } from '@/utils/data'
 
-export const handlePlay = (musicInfo: LX.Music.MusicInfoOnline) => {
-  void addListMusics(LIST_IDS.DEFAULT, [musicInfo], settingState.setting['list.addMusicLocationType']).then(() => {
-    const index = getListMusicSync(LIST_IDS.DEFAULT).findIndex(m => m.id == musicInfo.id)
+export const handlePlay = (musicInfo: LX.Music.MusicInfoOnline, selectedList: LX.Music.MusicInfoOnline[] = [], onCancelSelect?: () => void) => {
+  const list = selectedList.length ? selectedList : [musicInfo]
+  // 多选时：全部加入“试听列表”，优先播放点开菜单的那首（若它在选中项内），否则播放第一首
+  const target = list.includes(musicInfo) ? musicInfo : list[0]
+  if (selectedList.length) onCancelSelect?.()
+  void addListMusics(LIST_IDS.DEFAULT, list, settingState.setting['list.addMusicLocationType']).then(() => {
+    const index = getListMusicSync(LIST_IDS.DEFAULT).findIndex(m => m.id == target.id)
     if (index < 0) return
     void playList(LIST_IDS.DEFAULT, index)
   })

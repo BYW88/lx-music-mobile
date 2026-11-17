@@ -108,7 +108,7 @@ export default forwardRef<OnlineListType, OnlineListProps>(({
       <DownloadQualityModal ref={downloadQualityModalRef} onAdded={() => { hancelExitSelect() }} />
       <ListMenu
         ref={listMenuRef}
-        onPlay={info => { handlePlay(info.musicInfo) }}
+        onPlay={info => { handlePlay(info.musicInfo, info.selectedList, hancelExitSelect) }}
         onPlayLater={info => { hancelExitSelect(); handlePlayLater(info.musicInfo, info.selectedList, hancelExitSelect) }}
         onCopyName={info => { handleShare(info.musicInfo) }}
         onAdd={handleAddMusic}
