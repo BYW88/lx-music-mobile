@@ -14,6 +14,8 @@ import Button from '../../components/Button'
 import UserApiEditModal, { type UserApiEditModalType } from './UserApiEditModal'
 import Text from '@/components/common/Text'
 import { useTheme } from '@/store/theme/hook'
+import CheckBoxItem from '../../components/CheckBoxItem'
+import { updateSetting } from '@/core/common'
 // import { importUserApi, removeUserApi } from '@/core/userApi'
 
 const apiSourceList = apiSourceInfo.map(api => ({
@@ -90,6 +92,11 @@ export default memo(() => {
     })
   }, [userApiListRaw, apiStatus, apiSourceSetting, t])
 
+  const userApiAutoSwitch = useSettingValue('common.userApiAutoSwitch')
+  const setUserApiAutoSwitch = useCallback((enable: boolean) => {
+    updateSetting({ 'common.userApiAutoSwitch': enable })
+  }, [])
+
   const modalRef = useRef<UserApiEditModalType>(null)
   const handleShow = () => {
     modalRef.current?.show()
@@ -105,6 +112,11 @@ export default memo(() => {
           userApiList.map(({ id, name, desc, statusLabel }) => <Item name={name} desc={desc} statusLabel={statusLabel} id={id} key={id} change={setApiSourceId} />)
         }
       </View>
+      {
+        userApiList.length > 1
+          ? <CheckBoxItem check={userApiAutoSwitch} label={t('setting_basic_source_user_api_auto_switch')} onChange={setUserApiAutoSwitch} />
+          : null
+      }
       <View style={styles.btn}>
         <Button onPress={handleShow}>{t('setting_basic_source_user_api_btn')}</Button>
       </View>

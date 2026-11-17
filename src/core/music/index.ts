@@ -20,6 +20,7 @@ import {
 import { buildLyricInfo } from './utils'
 import { getDownloadedFilePath } from '@/core/download'
 import { readLyric, readPic } from '@/utils/localMediaMetadata'
+import { withUserApiFallback } from '@/core/userApiFallback'
 
 
 export const getMusicUrl = async({
@@ -36,14 +37,15 @@ export const getMusicUrl = async({
   allowToggleSource?: boolean
 }): Promise<string> => {
   if ('progress' in musicInfo) {
-    return getDownloadMusicUrl({ musicInfo, isRefresh, onToggleSource, allowToggleSource })
+    return withUserApiFallback(async() => getDownloadMusicUrl({ musicInfo, isRefresh, onToggleSource, allowToggleSource }))
   } else if (musicInfo.source == 'local') {
-    return getLocalMusicUrl({ musicInfo, isRefresh, onToggleSource, allowToggleSource })
+    return withUserApiFallback(async() => getLocalMusicUrl({ musicInfo, isRefresh, onToggleSource, allowToggleSource }))
   } else {
     // 已下载的歌曲优先播放本地文件
     const filePath = await getDownloadedFilePath(musicInfo)
     if (filePath) return filePath
-    return getOnlineMusicUrl({ musicInfo, isRefresh, quality, onToggleSource, allowToggleSource })
+    // 当前自定义源取链接失败时，自动切换到下一个自定义源重试
+    return withUserApiFallback(async() => getOnlineMusicUrl({ musicInfo, isRefresh, quality, onToggleSource, allowToggleSource }))
   }
 }
 
