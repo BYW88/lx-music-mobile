@@ -5,6 +5,7 @@ import MusicAddBtn from './MusicAddBtn'
 import DesktopLyricBtn from './DesktopLyricBtn'
 import CommentBtn from './CommentBtn'
 import PlayQueueBtn from './PlayQueueBtn'
+import MoreMenuBtn from './MoreMenuBtn'
 
 export default () => {
   return (
@@ -14,6 +15,7 @@ export default () => {
       <PlayModeBtn />
       <CommentBtn />
       <PlayQueueBtn />
+      <MoreMenuBtn />
     </View>
   )
 }

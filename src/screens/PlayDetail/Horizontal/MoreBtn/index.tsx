@@ -4,6 +4,7 @@ import PlayModeBtn from './PlayModeBtn'
 import MusicAddBtn from './MusicAddBtn'
 import TimeoutExitBtn from './TimeoutExitBtn'
 import PlayQueueBtn from './PlayQueueBtn'
+import MoreMenuBtn from './MoreMenuBtn'
 
 export default () => {
   return (
@@ -12,6 +13,7 @@ export default () => {
       <MusicAddBtn />
       <PlayModeBtn />
       <PlayQueueBtn />
+      <MoreMenuBtn />
     </View>
   )
 }

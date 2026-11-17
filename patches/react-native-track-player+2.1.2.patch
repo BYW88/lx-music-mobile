@@ -1,0 +1,163 @@
+diff --git a/node_modules/react-native-track-player/android/src/main/java/com/guichaguri/trackplayer/module/MusicModule.java b/node_modules/react-native-track-player/android/src/main/java/com/guichaguri/trackplayer/module/MusicModule.java
+index 020d049..d99780a 100644
+--- a/node_modules/react-native-track-player/android/src/main/java/com/guichaguri/trackplayer/module/MusicModule.java
++++ b/node_modules/react-native-track-player/android/src/main/java/com/guichaguri/trackplayer/module/MusicModule.java
+@@ -335,6 +335,20 @@ public class MusicModule extends ReactContextBaseJavaModule implements ServiceCo
+         });
+     }
+ 
++    @ReactMethod
++    public void getCacheInfo(String url, final Promise callback) {
++        waitForConnection(() -> {
++            binder.getPlayback().getCacheInfo(url, callback);
++        });
++    }
++
++    @ReactMethod
++    public void exportCache(String url, String destPath, final Promise callback) {
++        waitForConnection(() -> {
++            binder.getPlayback().exportCache(url, destPath, callback);
++        });
++    }
++
+     @ReactMethod
+     public void getCacheSize(final Promise callback) {
+         waitForConnection(() -> {
+diff --git a/node_modules/react-native-track-player/android/src/main/java/com/guichaguri/trackplayer/service/player/ExoPlayback.java b/node_modules/react-native-track-player/android/src/main/java/com/guichaguri/trackplayer/service/player/ExoPlayback.java
+index ba1342b..aac6a1a 100644
+--- a/node_modules/react-native-track-player/android/src/main/java/com/guichaguri/trackplayer/service/player/ExoPlayback.java
++++ b/node_modules/react-native-track-player/android/src/main/java/com/guichaguri/trackplayer/service/player/ExoPlayback.java
+@@ -90,6 +90,10 @@ public abstract class ExoPlayback<T extends Player> implements Player.Listener,
+ 
+     public abstract void isCached(String url, Promise promise);
+ 
++    public abstract void getCacheInfo(String url, Promise promise);
++
++    public abstract void exportCache(String url, String destPath, Promise promise);
++
+     public abstract void getCacheSize(Promise promise);
+ 
+     public abstract void clearCache(Promise promise);
+diff --git a/node_modules/react-native-track-player/android/src/main/java/com/guichaguri/trackplayer/service/player/LocalPlayback.java b/node_modules/react-native-track-player/android/src/main/java/com/guichaguri/trackplayer/service/player/LocalPlayback.java
+index 60dc759..d7c245a 100644
+--- a/node_modules/react-native-track-player/android/src/main/java/com/guichaguri/trackplayer/service/player/LocalPlayback.java
++++ b/node_modules/react-native-track-player/android/src/main/java/com/guichaguri/trackplayer/service/player/LocalPlayback.java
+@@ -3,7 +3,9 @@ package com.guichaguri.trackplayer.service.player;
+ import android.content.Context;
+ import android.util.Log;
+ 
++import com.facebook.react.bridge.Arguments;
+ import com.facebook.react.bridge.Promise;
++import com.facebook.react.bridge.WritableMap;
+ import androidx.media3.common.C;
+ import androidx.media3.common.PlaybackException;
+ import androidx.media3.common.Player;
+@@ -13,6 +15,7 @@ import androidx.media3.database.StandaloneDatabaseProvider;
+ import androidx.media3.datasource.DataSource;
+ import androidx.media3.datasource.cache.CacheDataSource;
+ import androidx.media3.datasource.cache.CacheSpan;
++import androidx.media3.datasource.cache.ContentMetadata;
+ import androidx.media3.datasource.cache.LeastRecentlyUsedCacheEvictor;
+ import androidx.media3.datasource.cache.SimpleCache;
+ import androidx.media3.exoplayer.ExoPlayer;
+@@ -23,6 +26,11 @@ import com.guichaguri.trackplayer.service.Utils;
+ import com.guichaguri.trackplayer.service.models.Track;
+ 
+ import java.io.File;
++import java.io.FileInputStream;
++import java.io.FileOutputStream;
++import java.io.IOException;
++import java.io.InputStream;
++import java.io.OutputStream;
+ import java.util.ArrayList;
+ import java.util.Collection;
+ import java.util.Collections;
+@@ -78,6 +86,88 @@ public class LocalPlayback extends ExoPlayback<ExoPlayer> {
+         promise.resolve(!cachedSpans.isEmpty());
+     }
+ 
++    /**
++     * 获取某个链接的缓存情况：contentLength 为文件总大小（未知时为 -1），cachedBytes 为已缓存的字节数
++     */
++    public void getCacheInfo(String url, Promise promise) {
++        WritableMap map = Arguments.createMap();
++        long contentLength = C.LENGTH_UNSET;
++        long cachedBytes = 0;
++        if (cache != null) {
++            try {
++                contentLength = ContentMetadata.getContentLength(cache.getContentMetadata(url));
++                if (contentLength > 0) {
++                    cachedBytes = cache.getCachedBytes(url, 0, contentLength);
++                } else {
++                    for (CacheSpan span : cache.getCachedSpans(url)) {
++                        if (span.isCached) cachedBytes += span.length;
++                    }
++                }
++            } catch (Exception e) {
++                Log.w(Utils.LOG, "getCacheInfo failed: " + e.getMessage());
++            }
++        }
++        map.putDouble("contentLength", contentLength);
++        map.putDouble("cachedBytes", cachedBytes);
++        promise.resolve(map);
++    }
++
++    /**
++     * 把完整缓存的歌曲导出到指定文件，缓存不完整时返回 false
++     */
++    public void exportCache(String url, String destPath, Promise promise) {
++        final SimpleCache currentCache = cache;
++        if (currentCache == null) {
++            promise.resolve(false);
++            return;
++        }
++        new Thread(() -> {
++            File destFile = new File(destPath);
++            boolean success = false;
++            try {
++                long contentLength = ContentMetadata.getContentLength(currentCache.getContentMetadata(url));
++                if (contentLength > 0 && currentCache.isCached(url, 0, contentLength)) {
++                    File parent = destFile.getParentFile();
++                    if (parent != null && !parent.exists()) parent.mkdirs();
++                    long position = 0;
++                    byte[] buffer = new byte[64 * 1024];
++                    try (OutputStream out = new FileOutputStream(destFile)) {
++                        for (CacheSpan span : currentCache.getCachedSpans(url)) {
++                            if (position >= contentLength) break;
++                            if (!span.isCached || span.file == null) continue;
++                            long spanEnd = span.position + span.length;
++                            if (spanEnd <= position) continue;
++                            if (span.position > position) break; // 中间有空洞
++                            long skip = position - span.position;
++                            long remaining = Math.min(spanEnd, contentLength) - position;
++                            try (InputStream in = new FileInputStream(span.file)) {
++                                long skipped = 0;
++                                while (skipped < skip) {
++                                    long n = in.skip(skip - skipped);
++                                    if (n <= 0) throw new IOException("skip failed");
++                                    skipped += n;
++                                }
++                                while (remaining > 0) {
++                                    int n = in.read(buffer, 0, (int) Math.min(buffer.length, remaining));
++                                    if (n < 0) throw new IOException("unexpected end of cache span");
++                                    out.write(buffer, 0, n);
++                                    remaining -= n;
++                                    position += n;
++                                }
++                            }
++                        }
++                    }
++                    success = position >= contentLength;
++                }
++            } catch (Exception e) {
++                Log.w(Utils.LOG, "exportCache failed: " + e.getMessage());
++                success = false;
++            }
++            if (!success && destFile.exists()) destFile.delete();
++            promise.resolve(success);
++        }).start();
++    }
++
+     public void getCacheSize(Promise promise) {
+         if (cache != null) {
+             promise.resolve((double) cache.getCacheSpace());

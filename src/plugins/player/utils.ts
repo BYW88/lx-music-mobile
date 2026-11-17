@@ -1,6 +1,7 @@
 import TrackPlayer, { Capability, Event, RepeatMode, State } from 'react-native-track-player'
+import { NativeModules } from 'react-native'
 import BackgroundTimer from 'react-native-background-timer'
-import { playMusic as handlePlayMusic } from './playList'
+import { playMusic as handlePlayMusic, getCurrentTrack } from './playList'
 import { existsFile, moveFile, privateStorageDirectoryPath, temporaryDirectoryPath } from '@/utils/fs'
 import { toast } from '@/utils/tools'
 // import { PlayerMusicInfo } from '@/store/modules/player/playInfo'
@@ -317,3 +318,38 @@ export const updateOptions = async(options = {
 // }
 
 export { updateMetaData, initTrackInfo } from './playList'
+
+export interface PlayerCacheInfo {
+  /** 文件总大小，未知时为 -1 */
+  contentLength: number
+  /** 已缓存的字节数 */
+  cachedBytes: number
+}
+// 以下两个方法由 patches/react-native-track-player 补丁提供
+const trackPlayerModule = NativeModules.TrackPlayerModule as {
+  getCacheInfo?: (url: string) => Promise<PlayerCacheInfo>
+  exportCache?: (url: string, destPath: string) => Promise<boolean>
+} | undefined
+/**
+ * 获取播放缓存的完整程度
+ */
+export const getCacheInfo = async(url: string): Promise<PlayerCacheInfo> => {
+  if (!global.lx.playerStatus.isInitialized || !trackPlayerModule?.getCacheInfo) return { contentLength: -1, cachedBytes: 0 }
+  return trackPlayerModule.getCacheInfo(url).catch(() => ({ contentLength: -1, cachedBytes: 0 }))
+}
+/**
+ * 把完整的播放缓存导出为文件，缓存不完整时返回 false
+ */
+export const exportCache = async(url: string, destPath: string): Promise<boolean> => {
+  if (!global.lx.playerStatus.isInitialized || !trackPlayerModule?.exportCache) return false
+  return trackPlayerModule.exportCache(url, destPath).catch(() => false)
+}
+/**
+ * 获取当前正在播放的音频地址（在线链接或本地文件路径），不是这首歌或还没开始播放时返回 null
+ */
+export const getCurrentPlayUrl = async(musicId: string): Promise<string | null> => {
+  if (!global.lx.playerStatus.isInitialized) return null
+  const track = await getCurrentTrack().catch(() => null)
+  if (!track || track.musicId != musicId || isTempId(String(track.id))) return null
+  return track.url as string
+}
