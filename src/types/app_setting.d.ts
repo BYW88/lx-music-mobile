@@ -127,12 +127,12 @@ declare global {
       'player.togglePlayMethod': 'listLoop' | 'random' | 'list' | 'singleLoop' | 'none'
 
       /**
-       * 优先播放的音质（WiFi 等不计流量的网络下）
+       * 优先播放的音质（WiFi 等不计费网络下）
        */
       'player.playQuality': LX.Quality
 
       /**
-       * 优先播放的音质（移动数据网络下）
+       * 优先播放的音质（移动数据、手机热点等计费网络下）
        */
       'player.playQualityMobile': LX.Quality
 

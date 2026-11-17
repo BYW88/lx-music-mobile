@@ -217,7 +217,7 @@ export const getOnlineOtherSourcePicByLocal = async(musicInfo: LX.Music.MusicInf
 export const TRY_QUALITYS_LIST = ['flac24bit', 'flac', '320k'] as const
 type TryQualityType = typeof TRY_QUALITYS_LIST[number]
 /**
- * 根据当前网络类型获取设置中的优先播放音质：移动数据用流量音质设置，其他情况用 WiFi 音质设置
+ * 根据当前网络是否计费获取设置中的优先播放音质：计费网络（移动数据、手机热点等）用流量音质设置，其他情况用 WiFi 音质设置
  */
 export const getSettingPlayQuality = (): LX.Quality => {
   return getNetworkType() == 'mobile'
