@@ -11,6 +11,7 @@ import { scaleSizeH } from '@/utils/pixelRatio'
 import { HEADER_HEIGHT as _HEADER_HEIGHT, NAV_SHEAR_NATIVE_IDS } from '@/config/constant'
 import commonState from '@/store/common/state'
 import SettingPopup, { type SettingPopupType } from '../../components/SettingPopup'
+import QualityBadge from '../../components/QualityBadge'
 import { useStatusbarHeight } from '@/store/common/hook'
 import Btn from './Btn'
 import TimeoutExitBtn from './TimeoutExitBtn'
@@ -26,7 +27,10 @@ const Title = () => {
   return (
     <View style={styles.titleContent}>
       <Text numberOfLines={1} style={styles.title}>{musicInfo.name}</Text>
-      <Text numberOfLines={1} style={styles.title} size={12} color={theme['c-font-label']}>{musicInfo.singer}</Text>
+      <View style={styles.singerRow}>
+        <Text numberOfLines={1} style={styles.singer} size={12} color={theme['c-font-label']}>{musicInfo.singer}</Text>
+        <QualityBadge />
+      </View>
     </View>
   )
 }
@@ -68,6 +72,13 @@ const styles = StyleSheet.create({
     paddingHorizontal: 5,
     // alignItems: 'center',
     justifyContent: 'center',
+  },
+  singerRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  singer: {
+    flexShrink: 1,
   },
   title: {
     // flex: 1,

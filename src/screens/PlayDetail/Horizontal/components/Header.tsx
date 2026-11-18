@@ -13,6 +13,7 @@ import commonState from '@/store/common/state'
 import CommentBtn from './CommentBtn'
 import Btn from './Btn'
 import SettingPopup, { type SettingPopupType } from '../../components/SettingPopup'
+import QualityBadge from '../../components/QualityBadge'
 import DesktopLyricBtn from './DesktopLyricBtn'
 
 export const HEADER_HEIGHT = scaleSizeH(_HEADER_HEIGHT)
@@ -25,7 +26,10 @@ const Title = () => {
   return (
     <View style={styles.titleContent}>
       <Text numberOfLines={1} style={styles.title} size={14}>{musicInfo.name}</Text>
-      <Text numberOfLines={1} style={styles.title} size={12} color={theme['c-font-label']}>{musicInfo.singer}</Text>
+      <View style={styles.singerRow}>
+        <Text numberOfLines={1} style={styles.singer} size={12} color={theme['c-font-label']}>{musicInfo.singer}</Text>
+        <QualityBadge />
+      </View>
     </View>
   )
 }
@@ -75,6 +79,13 @@ const styles = StyleSheet.create({
     flex: 1,
     // alignItems: 'center',
     justifyContent: 'center',
+  },
+  singerRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  singer: {
+    flexShrink: 1,
   },
   title: {
     // flex: 1,
