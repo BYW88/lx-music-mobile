@@ -12,6 +12,7 @@ const initSelectInfo = {}
 export interface ListMenuProps {
   onPlay: (selectInfo: SelectInfo) => void
   onCollect: (selectInfo: SelectInfo) => void
+  onDownload: (selectInfo: SelectInfo) => void
   onHideMenu: () => void
 }
 export interface ListMenuType {
@@ -45,6 +46,7 @@ export default forwardRef<ListMenuType, ListMenuProps>((props, ref) => {
     return [
       { action: 'play', label: t('play') },
       { action: 'collect', label: t('collect') },
+      { action: 'download', label: t('download_all') },
     ] as const
   }, [t])
 
@@ -56,6 +58,9 @@ export default forwardRef<ListMenuType, ListMenuProps>((props, ref) => {
         break
       case 'collect':
         props.onCollect(selectInfo)
+        break
+      case 'download':
+        props.onDownload(selectInfo)
         break
       default:
         break
