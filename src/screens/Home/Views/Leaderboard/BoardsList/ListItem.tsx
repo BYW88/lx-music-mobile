@@ -1,4 +1,5 @@
 import { useCallback, useRef } from 'react'
+import { TouchableOpacity, View } from 'react-native'
 import Text from '@/components/common/Text'
 import { useTheme } from '@/store/theme/hook'
 import Button, { type BtnType } from '@/components/common/Button'
@@ -23,6 +24,7 @@ export interface ListItemProps {
 export default ({ item, activeId, index, longPressIndex, onBoundChange, onShowMenu }: ListItemProps) => {
   const theme = useTheme()
   const buttonRef = useRef<BtnType>(null)
+  const moreButtonRef = useRef<TouchableOpacity>(null)
 
   const setPosition = useCallback(() => {
     if (buttonRef.current?.measure) {
@@ -33,29 +35,49 @@ export default ({ item, activeId, index, longPressIndex, onBoundChange, onShowMe
     }
   }, [index, item, onShowMenu])
 
+  // 与“我的列表”一致：行最右边的更多按钮，点击弹出菜单
+  const handleShowMenu = useCallback(() => {
+    if (moreButtonRef.current?.measure) {
+      moreButtonRef.current.measure((fx, fy, width, height, px, py) => {
+        onShowMenu(item.id, item.name, index, { x: Math.ceil(px), y: Math.ceil(py), w: Math.ceil(width), h: Math.ceil(height) })
+      })
+    }
+  }, [index, item, onShowMenu])
+
   const active = activeId == item.id
 
   return (
-    <Button
-      ref={buttonRef}
-      style={{ ...styles.button, backgroundColor: index == longPressIndex ? theme['c-button-background-active'] : undefined }}
-      key={item.id} onLongPress={setPosition}
-      onPress={() => { onBoundChange(item) }}
-    >
-      {
-        active
-          ? <Icon style={styles.listActiveIcon} name="chevron-right" size={12} color={theme['c-primary-font']} />
-          : null
-      }
-      <Text style={styles.listName} size={14} textBreakStrategy="simple" color={active ? theme['c-primary-font-active'] : theme['c-font']} numberOfLines={1}>{item.name}</Text>
-    </Button>
+    <View style={{ ...styles.listItem, backgroundColor: index == longPressIndex ? theme['c-button-background-active'] : undefined }}>
+      <Button
+        ref={buttonRef}
+        style={styles.button}
+        key={item.id} onLongPress={setPosition}
+        onPress={() => { onBoundChange(item) }}
+      >
+        {
+          active
+            ? <Icon style={styles.listActiveIcon} name="chevron-right" size={12} color={theme['c-primary-font']} />
+            : null
+        }
+        <Text style={styles.listName} size={14} textBreakStrategy="simple" color={active ? theme['c-primary-font-active'] : theme['c-font']} numberOfLines={1}>{item.name}</Text>
+      </Button>
+      <TouchableOpacity onPress={handleShowMenu} ref={moreButtonRef} style={styles.listMoreBtn}>
+        <Icon name="dots-vertical" color={theme['c-350']} size={12} />
+      </TouchableOpacity>
+    </View>
   )
 }
 
 const styles = createStyle({
+  listItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
   button: {
+    flexGrow: 1,
+    flexShrink: 1,
     paddingLeft: 5,
-    paddingRight: 10,
+    paddingRight: 0,
     paddingTop: 10,
     paddingBottom: 10,
     flexDirection: 'row',
@@ -68,9 +90,16 @@ const styles = createStyle({
     textAlign: 'center',
   },
   listName: {
+    flexShrink: 1,
     height: '100%',
     justifyContent: 'center',
     paddingLeft: 6,
     // backgroundColor: 'rgba(0,0,0,0.1)',
+  },
+  listMoreBtn: {
+    alignSelf: 'stretch',
+    width: 36,
+    justifyContent: 'center',
+    alignItems: 'center',
   },
 })
