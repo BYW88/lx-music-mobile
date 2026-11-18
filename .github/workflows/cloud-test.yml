@@ -149,8 +149,6 @@ jobs:
           DEST: ${{ needs.build.outputs.slug }}/${{ github.run_number }}
         run: |
           [ -d ci-out ] || exit 0
-          git config user.name "github-actions[bot]"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           WORK=$RUNNER_TEMP/shots
           if git ls-remote --exit-code --heads origin ci-screenshots >/dev/null; then
             git clone --depth 1 --branch ci-screenshots "https://x-access-token:${{ github.token }}@github.com/${{ github.repository }}.git" "$WORK"
@@ -159,6 +157,8 @@ jobs:
           fi
           mkdir -p "$WORK/$DEST" && cp -r ci-out/. "$WORK/$DEST/"
           cd "$WORK"
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add -A && git commit -qm "screenshots: ${{ github.ref_name }} run ${{ github.run_number }} (${GITHUB_SHA::7})"
           for i in 1 2 3 4; do git push origin ci-screenshots && break; git pull --rebase origin ci-screenshots; done
           echo "截图: https://github.com/${{ github.repository }}/tree/ci-screenshots/$DEST" >> $GITHUB_STEP_SUMMARY
