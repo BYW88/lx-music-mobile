@@ -8,6 +8,7 @@ import Player from './Player'
 import PagerView, { type PagerViewOnPageSelectedEvent } from 'react-native-pager-view'
 import Pic from './Pic'
 import Lyric from './Lyric'
+import PicLyric from './PicLyric'
 import { screenkeepAwake, screenUnkeepAwake } from '@/utils/nativeModules/utils'
 import commonState, { type InitState as CommonState } from '@/store/common/state'
 import { createStyle } from '@/utils/tools'
@@ -79,8 +80,9 @@ export default memo(({ componentId }: { componentId: string }) => {
           // onPageScrollStateChanged={onPageScrollStateChanged}
           style={styles.pagerView}
         >
-          <View collapsable={false}>
+          <View collapsable={false} style={styles.picPage}>
             <Pic componentId={componentId} />
+            <PicLyric autoUpdate={pageIndex == 0} />
           </View>
           <View collapsable={false}>
             <LyricPage activeIndex={pageIndex} />
@@ -103,6 +105,11 @@ const styles = createStyle({
   },
   pagerView: {
     flex: 1,
+  },
+  picPage: {
+    flex: 1,
+    flexDirection: 'column',
+    justifyContent: 'center',
   },
   // pageIndicator: {
   //   flex: 0,
