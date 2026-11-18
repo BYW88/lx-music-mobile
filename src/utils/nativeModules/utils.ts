@@ -111,3 +111,14 @@ export const requestIgnoreBatteryOptimization = async() => new Promise<boolean>(
     resolve(false)
   })
 })
+
+/**
+ * 获取本应用接收的总字节数（同步），不支持时返回 -1
+ */
+export const getAppRxBytes = (): number => {
+  try {
+    return (UtilsModule.getAppRxBytes?.() as number | undefined) ?? -1
+  } catch {
+    return -1
+  }
+}

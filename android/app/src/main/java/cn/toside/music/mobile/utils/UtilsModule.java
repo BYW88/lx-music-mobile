@@ -10,10 +10,12 @@ import android.graphics.Rect;
 import android.net.ConnectivityManager;
 import android.net.Network;
 import android.net.NetworkInfo;
+import android.net.TrafficStats;
 import android.net.Uri;
 import android.net.wifi.WifiInfo;
 import android.net.wifi.WifiManager;
 import android.os.Build;
+import android.os.Process;
 import android.util.Log;
 import android.view.Window;
 import android.view.WindowManager;
@@ -228,6 +230,20 @@ public class UtilsModule extends ReactContextBaseJavaModule {
    连接另一台手机开的热点时系统会标记为计费网络，因此也算作 mobile
    @return wifi: 不计费网络（普通 WiFi / 以太网）；mobile: 计费网络（移动数据、手机热点等）；none: 无网络；unknown: 无法判断
    */
+  /**
+   * 获取本应用自启动以来接收的总字节数，用于计算播放缓冲时的下载速度
+   * @return 字节数；系统不支持时返回 -1
+   */
+  @ReactMethod(isBlockingSynchronousMethod = true)
+  public double getAppRxBytes() {
+    try {
+      long bytes = TrafficStats.getUidRxBytes(Process.myUid());
+      return bytes == TrafficStats.UNSUPPORTED ? -1 : (double) bytes;
+    } catch (Exception e) {
+      return -1;
+    }
+  }
+
   @ReactMethod(isBlockingSynchronousMethod = true)
   public String getNetworkType() {
     try {
