@@ -1,0 +1,40 @@
+03:39:30.971 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandStart: Define variables RUNNING
+03:39:30.983 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandFinished: Define variables COMPLETED
+03:39:30.987 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandStart: Apply configuration RUNNING
+03:39:30.987 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandFinished: Apply configuration COMPLETED
+03:39:30.988 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandStart: Launch app "cn.toside.music.mobile" RUNNING
+03:39:31.938 [ INFO] maestro.Maestro.launchApp$lambda$6: Launching app cn.toside.music.mobile
+03:39:31.939 [ INFO] maestro.Maestro.launchApp$lambda$6: Stopping cn.toside.music.mobile app during launch
+03:39:32.846 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandFinished: Launch app "cn.toside.music.mobile" COMPLETED
+03:39:32.847 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandStart: Wait for animation to end within 10000 ms RUNNING
+03:39:32.856 [ INFO] maestro.Maestro.waitForAnimationToEnd$lambda$54: Waiting for animation to end with timeout 10000
+03:39:32.868 [TRACE] maestro.utils.ScreenshotUtils.takeScreenshot: Taking screenshot to byte array
+03:39:32.869 [TRACE] maestro.utils.ScreenshotUtils.takeScreenshot: Taking screenshot to output sink
+03:39:35.092 [TRACE] maestro.utils.ScreenshotUtils.takeScreenshot: Taking screenshot to byte array
+03:39:35.092 [TRACE] maestro.utils.ScreenshotUtils.takeScreenshot: Taking screenshot to output sink
+03:39:37.357 [TRACE] maestro.utils.ScreenshotUtils.takeScreenshot: Taking screenshot to byte array
+03:39:37.358 [TRACE] maestro.utils.ScreenshotUtils.takeScreenshot: Taking screenshot to output sink
+03:39:38.641 [TRACE] maestro.utils.ScreenshotUtils.takeScreenshot: Taking screenshot to byte array
+03:39:38.641 [TRACE] maestro.utils.ScreenshotUtils.takeScreenshot: Taking screenshot to output sink
+03:39:40.329 [TRACE] maestro.utils.ScreenshotUtils.takeScreenshot: Taking screenshot to byte array
+03:39:40.330 [TRACE] maestro.utils.ScreenshotUtils.takeScreenshot: Taking screenshot to output sink
+03:39:40.886 [TRACE] maestro.utils.ScreenshotUtils.takeScreenshot: Taking screenshot to byte array
+03:39:40.887 [TRACE] maestro.utils.ScreenshotUtils.takeScreenshot: Taking screenshot to output sink
+03:39:41.609 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandFinished: Wait for animation to end within 10000 ms COMPLETED
+03:39:41.611 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandStart: Tap on (Optional) "我知道了.*" RUNNING
+03:39:41.869 [ INFO] maestro.Maestro.tap-HgV9Ck0: Tapping on element:  UiElement(treeNode=TreeNode(attributes={text=我知道了 (CLOSE), accessibilityText=, hintText=, ignoreBoundsFiltering=false, resource-id=android:id/button1, clickable=true, bounds=[622,1644][978,1786], enabled=true, focused=false, checked=false, scrollable=false, selected=false, class=android.widget.Button, important-for-accessibility=true, error=}, children=[], clickable=true, enabled=true, focused=false, checked=false, selected=false), bounds=Bounds(x=622, y=1644, width=356, height=142))
+03:39:43.128 [ INFO] maestro.Maestro.tap-HgV9Ck0: Tap aimed via settled hierarchy
+03:39:43.133 [ INFO] maestro.Maestro.hierarchyBasedTap-ogj28Uc: Tapping at (800, 1715) using hierarchy based logic for wait
+03:39:46.450 [ INFO] maestro.Maestro.hierarchyBasedTap-ogj28Uc: Something has changed in the UI judging by view hierarchy. Proceed.
+03:39:46.450 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandFinished: Tap on (Optional) "我知道了.*" COMPLETED
+03:39:46.451 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandStart: Wait for animation to end RUNNING
+03:39:46.452 [ INFO] maestro.Maestro.waitForAnimationToEnd$lambda$54: Waiting for animation to end with timeout 15000
+03:39:46.452 [TRACE] maestro.utils.ScreenshotUtils.takeScreenshot: Taking screenshot to byte array
+03:39:46.452 [TRACE] maestro.utils.ScreenshotUtils.takeScreenshot: Taking screenshot to output sink
+03:39:46.984 [TRACE] maestro.utils.ScreenshotUtils.takeScreenshot: Taking screenshot to byte array
+03:39:46.985 [TRACE] maestro.utils.ScreenshotUtils.takeScreenshot: Taking screenshot to output sink
+03:39:47.962 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandFinished: Wait for animation to end COMPLETED
+03:39:47.963 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandStart: Take screenshot smoke-home RUNNING
+03:39:47.967 [ INFO] maestro.Maestro.takeScreenshot: Taking screenshot
+03:39:47.969 [TRACE] maestro.utils.ScreenshotUtils.takeScreenshot: Taking screenshot to output sink
+03:39:48.297 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandFinished: Take screenshot smoke-home COMPLETED
