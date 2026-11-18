@@ -8,7 +8,7 @@ export default () => {
 
   return (
     <>
-      <Btn icon="menu" onPress={() => popupRef.current?.show()} />
+      <Btn icon="play-queue" onPress={() => popupRef.current?.show()} />
       <PlayQueuePopup ref={popupRef} />
     </>
   )

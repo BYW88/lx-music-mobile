@@ -14,6 +14,7 @@ import { filterFileName, throttle } from '@/utils/common'
 import { externalStorageDirectoryPath, downloadFile, stopDownload } from '@/utils/fs'
 import { formatMusicName, requestStoragePermission, toast, TEMP_FILE_PATH } from '@/utils/tools'
 import { log } from '@/utils/log'
+import { exportCache } from '@/plugins/player'
 
 export const DOWNLOAD_STATUS = {
   RUN: 'run',
@@ -241,7 +242,7 @@ const handleError = (task: LX.Download.ListItem, message: string) => {
   checkStartTask()
 }
 
-const handleComplete = async(task: LX.Download.ListItem, tempPath: string) => {
+const handleComplete = async(task: LX.Download.ListItem, tempPath: string, completedText?: string) => {
   try {
     if (await RNFS.exists(task.metadata.filePath)) await RNFS.unlink(task.metadata.filePath)
     await RNFS.moveFile(tempPath, task.metadata.filePath)
@@ -261,7 +262,7 @@ const handleComplete = async(task: LX.Download.ListItem, tempPath: string) => {
   if (!runningTasks.has(task.id)) return
   runningTasks.delete(task.id)
   retryNums.delete(task.id)
-  setStatus(task, DOWNLOAD_STATUS.COMPLETED)
+  setStatus(task, DOWNLOAD_STATUS.COMPLETED, completedText)
   // 让媒体库能扫描到新文件
   RNFS.scanFile(task.metadata.filePath).catch(() => {})
   checkStartTask()
@@ -308,6 +309,20 @@ const runTask = async(task: LX.Download.ListItem) => {
   }
 
   const tempPath = task.metadata.filePath + TEMP_FILE_EXT
+  // 播放过且已完整缓存的歌曲直接从播放缓存导出，不再重新下载
+  if (!isRefresh && /^https?:\/\//.test(task.metadata.url)) {
+    setStatusText(task, t('download_status_from_cache'))
+    if (await exportCache(task.metadata.url, tempPath)) {
+      if (runInfo.isCancelled) {
+        await RNFS.unlink(tempPath).catch(() => {})
+        return
+      }
+      log.info('download from player cache', task.metadata.musicInfo.name)
+      await handleComplete(task, tempPath, t('download_status_completed_from_cache'))
+      return
+    }
+    if (runInfo.isCancelled) return
+  }
   let lastTime = Date.now()
   let lastBytes = 0
   setStatusText(task, t('download_status_start'))

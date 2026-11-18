@@ -68,4 +68,8 @@ export {
   isEmpty,
   useBufferProgress,
   initTrackInfo,
+  getCacheInfo,
+  exportCache,
+  getCurrentPlayUrl,
+  type PlayerCacheInfo,
 } from './utils'
