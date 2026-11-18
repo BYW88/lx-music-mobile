@@ -6,4 +6,9 @@ appId: cn.toside.music.mobile
 - launchApp
 - waitForAnimationToEnd:
     timeout: 10000
+# 首次启动的提示弹窗，有就关掉
+- tapOn:
+    text: "我知道了.*"
+    optional: true
+- waitForAnimationToEnd
 - takeScreenshot: smoke-home

@@ -7,6 +7,12 @@ OUT=${OUT_DIR:-ci-out}
 mkdir -p "$OUT/screens" "$OUT/maestro"
 
 adb wait-for-device
+# 系统语言切到简体中文，截图和手机上看到的一致
+adb root >/dev/null 2>&1 && sleep 3 && adb wait-for-device
+adb shell "setprop persist.sys.locale zh-Hans-CN; setprop ctl.restart zygote" || true
+sleep 5; adb wait-for-device
+until [ "$(adb shell getprop sys.boot_completed | tr -d '\r')" = "1" ]; do sleep 2; done
+sleep 5
 adb shell settings put system screen_off_timeout 1800000
 adb install -r -g "$APK_PATH" || exit 1
 adb logcat -c
