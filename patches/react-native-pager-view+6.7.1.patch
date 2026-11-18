@@ -1,0 +1,23 @@
+diff --git a/node_modules/react-native-pager-view/android/src/main/java/com/reactnativepagerview/NestedScrollableHost.kt b/node_modules/react-native-pager-view/android/src/main/java/com/reactnativepagerview/NestedScrollableHost.kt
+index 87b58d0..11d27a8 100644
+--- a/node_modules/react-native-pager-view/android/src/main/java/com/reactnativepagerview/NestedScrollableHost.kt
++++ b/node_modules/react-native-pager-view/android/src/main/java/com/reactnativepagerview/NestedScrollableHost.kt
+@@ -77,11 +77,15 @@ class NestedScrollableHost : FrameLayout {
+       val scaledDy = dy.absoluteValue * if (isVpHorizontal) 1f else .5f
+ 
+       if (scaledDx > touchSlop || scaledDy > touchSlop) {
+-        NativeGestureUtil.notifyNativeGestureStarted(this, e)
+-        nativeGestureStarted = true
++        val isPerpendicular = isVpHorizontal == (scaledDy > scaledDx)
++        // 只有沿翻页方向滑动时才通知 RN 原生手势开始；垂直方向的滑动留给 JS 手势（如播放详情页海报上下滑切歌）
++        if (orientation == null || !isPerpendicular) {
++          NativeGestureUtil.notifyNativeGestureStarted(this, e)
++          nativeGestureStarted = true
++        }
+ 
+         if (orientation == null) return
+-        if (isVpHorizontal == (scaledDy > scaledDx)) {
++        if (isPerpendicular) {
+           // Gesture is perpendicular, allow all parents to intercept
+           parent.requestDisallowInterceptTouchEvent(false)
+         } else {
