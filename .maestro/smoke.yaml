@@ -19,8 +19,12 @@ appId: cn.toside.music.mobile
     text: "^接受$"
     optional: true
 - waitForAnimationToEnd
-- tapOn:
-    text: "我知道了.*"
-    optional: true
-- waitForAnimationToEnd
+# 之后可能还会依次弹出几个提示，逐个关掉
+- repeat:
+    times: 3
+    commands:
+      - tapOn:
+          text: "(我知道了|好的).*"
+          optional: true
+      - waitForAnimationToEnd
 - takeScreenshot: smoke-home
