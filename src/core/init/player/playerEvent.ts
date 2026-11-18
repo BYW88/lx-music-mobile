@@ -1,5 +1,5 @@
 import { playNext, setMusicUrl } from '@/core/player/player'
-import { setStatusText } from '@/core/player/playStatus'
+import { setStatusText, stopStatusTextSpeed } from '@/core/player/playStatus'
 import { getPosition, isEmpty, setStop } from '@/plugins/player'
 import { isActive } from '@/utils/tools'
 import BackgroundTimer from 'react-native-background-timer'
@@ -86,6 +86,11 @@ export default () => {
     setStatusText(global.i18n.t('player__buffering'))
   }
 
+  // 缓冲/加载中被暂停时，停止刷新下载速度
+  const handlePause = () => {
+    stopStatusTextSpeed()
+  }
+
   const handleError = () => {
     if (!playerState.musicInfo.id) return
     clearLoadingTimeout()
@@ -132,6 +137,7 @@ export default () => {
   // global.app_event.on('playerCanplay', handleCanplay)
   global.app_event.on('playerPlaying', handlePlaying)
   global.app_event.on('playerWaiting', handleWating)
+  global.app_event.on('playerPause', handlePause)
   global.app_event.on('playerEmptied', handleEmpied)
   global.app_event.on('playerError', handleError)
   global.app_event.on('musicToggled', handleSetPlayInfo)
