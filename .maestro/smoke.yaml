@@ -1,0 +1,30 @@
+# 冒烟流程：打开 App，关掉首次启动的弹窗，截一张首页图。
+# 新功能的测试流程照这个格式加到 .maestro/ 目录，文件名用功能名。
+# 首次启动弹窗处理可以复制本文件开头这几步。语法见 https://docs.maestro.dev
+appId: cn.toside.music.mobile
+---
+- launchApp
+- waitForAnimationToEnd:
+    timeout: 10000
+# 防骗提示弹窗
+- tapOn:
+    text: "我知道了.*"
+    optional: true
+# 许可协议：倒计时结束后按钮变成“接受”
+- extendedWaitUntil:
+    visible: "^接受$"
+    timeout: 30000
+    optional: true
+- tapOn:
+    text: "^接受$"
+    optional: true
+- waitForAnimationToEnd
+# 之后可能还会依次弹出几个提示，逐个关掉
+- repeat:
+    times: 3
+    commands:
+      - tapOn:
+          text: "(我知道了|好的).*"
+          optional: true
+      - waitForAnimationToEnd
+- takeScreenshot: smoke-home
