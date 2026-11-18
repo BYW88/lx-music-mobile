@@ -7,6 +7,9 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.graphics.Rect;
+import android.net.ConnectivityManager;
+import android.net.Network;
+import android.net.NetworkInfo;
 import android.net.Uri;
 import android.net.wifi.WifiInfo;
 import android.net.wifi.WifiManager;
@@ -218,6 +221,29 @@ public class UtilsModule extends ReactContextBaseJavaModule {
         }
       }
     }).start();
+  }
+
+  /**
+   获取当前网络类型（同步调用），按是否计费区分：
+   连接另一台手机开的热点时系统会标记为计费网络，因此也算作 mobile
+   @return wifi: 不计费网络（普通 WiFi / 以太网）；mobile: 计费网络（移动数据、手机热点等）；none: 无网络；unknown: 无法判断
+   */
+  @ReactMethod(isBlockingSynchronousMethod = true)
+  public String getNetworkType() {
+    try {
+      ConnectivityManager cm = (ConnectivityManager) reactContext.getApplicationContext().getSystemService(Context.CONNECTIVITY_SERVICE);
+      if (cm == null) return "unknown";
+      if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+        Network network = cm.getActiveNetwork();
+        if (network == null) return "none";
+      } else {
+        NetworkInfo info = cm.getActiveNetworkInfo();
+        if (info == null || !info.isConnected()) return "none";
+      }
+      return cm.isActiveNetworkMetered() ? "mobile" : "wifi";
+    } catch (Exception e) {
+      return "unknown";
+    }
   }
 
   // https://stackoverflow.com/a/26117646

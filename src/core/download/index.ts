@@ -7,7 +7,7 @@ import downloadState from '@/store/download/state'
 import { event as downloadEvent } from '@/store/download/event'
 import settingState from '@/store/setting/state'
 import { getMusicUrl, getPicUrl, getLyricInfo } from '@/core/music/online'
-import { getPlayQuality } from '@/core/music/utils'
+import { getPlayQuality, getSettingPlayQuality } from '@/core/music/utils'
 import { writeMetadata, writePic, writeLyric } from '@/utils/localMediaMetadata'
 import { getDownloadList, saveDownloadList } from '@/utils/data'
 import { filterFileName, throttle } from '@/utils/common'
@@ -434,7 +434,7 @@ export const createDownloadTasks = async(list: LX.Music.MusicInfo[], quality?: L
   const ids = new Set(downloadState.list.map(task => task.id))
   const tasks: LX.Download.ListItem[] = []
   for (const musicInfo of onlineList) {
-    const task = createDownloadInfo(musicInfo, quality ? getDownloadQuality(quality, musicInfo) : getPlayQuality(settingState.setting['player.playQuality'], musicInfo), listId)
+    const task = createDownloadInfo(musicInfo, quality ? getDownloadQuality(quality, musicInfo) : getPlayQuality(getSettingPlayQuality(), musicInfo), listId)
     if (ids.has(task.id)) continue
     ids.add(task.id)
     tasks.push(task)

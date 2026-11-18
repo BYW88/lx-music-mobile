@@ -69,6 +69,11 @@ export const updateSetting = (setting?: Partial<LX.AppSetting> | null, isInit: b
     originSetting = { ...defaultSetting }
   } else originSetting = settingState.setting
 
+  // 旧版只有一个“优先播放音质”设置，迁移时让流量下的音质沿用原来的值
+  if (isInit && setting && setting['player.playQualityMobile'] == null && setting['player.playQuality'] != null) {
+    setting = { ...setting, 'player.playQualityMobile': setting['player.playQuality'] }
+  }
+
   const result = mergeSetting(originSetting, setting)
 
   result.setting.version = defaultSetting.version

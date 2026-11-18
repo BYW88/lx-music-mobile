@@ -9,35 +9,45 @@ import { updateSetting } from '@/core/common'
 import { useI18n } from '@/lang'
 import { TRY_QUALITYS_LIST } from '@/core/music/utils'
 
-const useActive = (id: LX.Quality) => {
-  const q = useSettingValue('player.playQuality')
-  const isActive = useMemo(() => q == id, [q, id])
-  return isActive
-}
+type QualitySettingKey = 'player.playQuality' | 'player.playQualityMobile'
 
-const Item = ({ id, name }: {
+const Item = ({ id, name, settingKey }: {
   id: LX.Quality
   name: string
+  settingKey: QualitySettingKey
 }) => {
-  const isActive = useActive(id)
-  // const [toggleCheckBox, setToggleCheckBox] = useState(false)
-  return <CheckBox marginRight={8} check={isActive} label={name} onChange={() => { updateSetting({ 'player.playQuality': id }) }} need />
+  const q = useSettingValue(settingKey)
+  const isActive = q == id
+  return <CheckBox marginRight={8} check={isActive} label={name} onChange={() => { updateSetting({ [settingKey]: id }) }} need />
 }
 
-export default memo(() => {
-  const t = useI18n()
+const QualityList = ({ title, settingKey }: {
+  title: string
+  settingKey: QualitySettingKey
+}) => {
   const playQualityList = useMemo(() => {
     return [...TRY_QUALITYS_LIST, '128k'].reverse() as LX.Quality[]
   }, [])
 
   return (
-    <SubTitle title={t('setting_play_play_quality')}>
+    <SubTitle title={title}>
       <View style={styles.list}>
         {
-          playQualityList.map((q) => <Item name={q} id={q} key={q} />)
+          playQualityList.map((q) => <Item name={q} id={q} key={q} settingKey={settingKey} />)
         }
       </View>
     </SubTitle>
+  )
+}
+
+export default memo(() => {
+  const t = useI18n()
+
+  return (
+    <>
+      <QualityList title={t('setting_play_play_quality')} settingKey="player.playQuality" />
+      <QualityList title={t('setting_play_play_quality_mobile')} settingKey="player.playQualityMobile" />
+    </>
   )
 })
 
@@ -47,26 +57,3 @@ const styles = StyleSheet.create({
     flexWrap: 'wrap',
   },
 })
-
-
-// export default memo(() => {
-//   const t = useI18n()
-//   const isPlayHighQuality = useSettingValue('player.isPlayHighQuality')
-//   const setPlayHighQuality = (isPlayHighQuality: boolean) => {
-//     updateSetting({ 'player.isPlayHighQuality': isPlayHighQuality })
-//   }
-
-//   return (
-//     <View style={styles.content}>
-//       <CheckBoxItem check={isPlayHighQuality} onChange={setPlayHighQuality} label={t('setting_play_quality')} />
-//     </View>
-//   )
-// })
-
-
-// const styles = createStyle({
-//   content: {
-//     marginTop: 5,
-//   },
-// })
-

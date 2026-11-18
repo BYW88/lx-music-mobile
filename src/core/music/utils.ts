@@ -11,6 +11,7 @@ import settingState from '@/store/setting/state'
 import { requestMsg } from '@/utils/message'
 import BackgroundTimer from 'react-native-background-timer'
 import { apis } from '@/utils/musicSdk/api-source'
+import { getNetworkType } from '@/utils/nativeModules/utils'
 
 
 const getOtherSourcePromises = new Map()
@@ -215,6 +216,15 @@ export const getOnlineOtherSourcePicByLocal = async(musicInfo: LX.Music.MusicInf
 
 export const TRY_QUALITYS_LIST = ['flac24bit', 'flac', '320k'] as const
 type TryQualityType = typeof TRY_QUALITYS_LIST[number]
+/**
+ * 根据当前网络是否计费获取设置中的优先播放音质：计费网络（移动数据、手机热点等）用流量音质设置，其他情况用 WiFi 音质设置
+ */
+export const getSettingPlayQuality = (): LX.Quality => {
+  return getNetworkType() == 'mobile'
+    ? settingState.setting['player.playQualityMobile'] ?? settingState.setting['player.playQuality']
+    : settingState.setting['player.playQuality']
+}
+
 export const getPlayQuality = (highQuality: LX.Quality, musicInfo: LX.Music.MusicInfoOnline): LX.Quality => {
   let type: LX.Quality = '128k'
   if (TRY_QUALITYS_LIST.includes(highQuality as TryQualityType)) {
@@ -250,7 +260,7 @@ export const getOnlineOtherSourceMusicUrl = async({ musicInfos, quality, onToggl
     if (retryedSource.includes(musicInfo.source)) continue
     retryedSource.push(musicInfo.source)
     if (!assertApiSupport(musicInfo.source)) continue
-    itemQuality = quality ?? getPlayQuality(settingState.setting['player.playQuality'], musicInfo)
+    itemQuality = quality ?? getPlayQuality(getSettingPlayQuality(), musicInfo)
     if (!musicInfo.meta._qualitys[itemQuality]) continue
 
     console.log('try toggle to: ', musicInfo.source, musicInfo.name, musicInfo.singer, musicInfo.interval)
@@ -297,7 +307,7 @@ export const handleGetOnlineMusicUrl = async({ musicInfo, quality, onToggleSourc
 }> => {
   if (!await global.lx.apiInitPromise[0]) throw new Error('source init failed')
   // console.log(musicInfo.source)
-  const targetQuality = quality ?? getPlayQuality(settingState.setting['player.playQuality'], musicInfo)
+  const targetQuality = quality ?? getPlayQuality(getSettingPlayQuality(), musicInfo)
 
   let reqPromise
   try {
