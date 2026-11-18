@@ -48,7 +48,7 @@ export default ({ componentId }: { componentId: string }) => {
 
 const styles = createStyle({
   container: {
-    flexGrow: 1,
+    flexGrow: 0,
     flexShrink: 1,
     justifyContent: 'center',
     alignItems: 'center',
