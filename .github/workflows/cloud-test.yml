@@ -1,0 +1,164 @@
+name: Cloud Test
+
+# 云端测试：每个 claude/** 分支推送后自动
+#   1. 编译 APK（有签名 Secrets 用你的 keystore，没有则退回 debug 签名）
+#   2. 发一个预发布 Release，手机浏览器打开即可下载安装
+#   3. 在 Pixel 模拟器里安装运行 .maestro/ 下的测试流程并截图
+#   4. 截图和日志推到 ci-screenshots 分支：<分支名>/<run 编号>/
+on:
+  push:
+    branches:
+      - 'claude/**'
+  workflow_dispatch:
+
+concurrency:
+  group: cloud-test-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    name: Build APK
+    runs-on: ubuntu-latest
+    outputs:
+      version: ${{ steps.meta.outputs.version }}
+      slug: ${{ steps.meta.outputs.slug }}
+      signing: ${{ steps.sign.outputs.signing }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Env
+        uses: ./.github/actions/setup
+
+      - name: Meta
+        id: meta
+        run: |
+          echo "version=$(node -p "require('./package.json').version")" >> $GITHUB_OUTPUT
+          echo "slug=$(echo '${{ github.ref_name }}' | tr '/' '-')" >> $GITHUB_OUTPUT
+
+      - name: Signing
+        id: sign
+        env:
+          STORE_B64: ${{ secrets.KEYSTORE_STORE_FILE_BASE64 }}
+          KEY_ALIAS: ${{ secrets.KEYSTORE_KEY_ALIAS }}
+          STORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
+          KEY_PASSWORD: ${{ secrets.KEYSTORE_KEY_PASSWORD }}
+        run: |
+          if [ -n "$STORE_B64" ]; then
+            echo "$STORE_B64" | base64 --decode > android/app/ci-release.keystore
+            {
+              echo "MYAPP_UPLOAD_STORE_FILE=ci-release.keystore"
+              echo "MYAPP_UPLOAD_KEY_ALIAS=$KEY_ALIAS"
+              echo "MYAPP_UPLOAD_STORE_PASSWORD=$STORE_PASSWORD"
+              echo "MYAPP_UPLOAD_KEY_PASSWORD=$KEY_PASSWORD"
+            } > "$RUNNER_TEMP/sign.properties"
+            echo "signing=release" >> $GITHUB_OUTPUT
+          else
+            {
+              echo "MYAPP_UPLOAD_STORE_FILE=debug.keystore"
+              echo "MYAPP_UPLOAD_KEY_ALIAS=androiddebugkey"
+              echo "MYAPP_UPLOAD_STORE_PASSWORD=android"
+              echo "MYAPP_UPLOAD_KEY_PASSWORD=android"
+            } > "$RUNNER_TEMP/sign.properties"
+            echo "signing=debug" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Build
+        env:
+          DISABLE_SVG: 1
+        run: |
+          cd android
+          ARGS=()
+          while IFS= read -r line; do ARGS+=("-P$line"); done < "$RUNNER_TEMP/sign.properties"
+          ./gradlew assembleRelease -PreactNativeArchitectures=arm64-v8a,x86_64 "${ARGS[@]}"
+          rm -f app/ci-release.keystore "$RUNNER_TEMP/sign.properties"
+          ls -l app/build/outputs/apk/release/
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: apk
+          path: android/app/build/outputs/apk/release/*.apk
+
+      - name: Pre-release for phone install
+        env:
+          GH_TOKEN: ${{ github.token }}
+          TAG: test-${{ steps.meta.outputs.slug }}
+          SIGNING: ${{ steps.sign.outputs.signing }}
+        run: |
+          APK=android/app/build/outputs/apk/release/lx-music-mobile-v${{ steps.meta.outputs.version }}-arm64-v8a.apk
+          gh release delete "$TAG" --cleanup-tag -y || true
+          NOTE="分支 ${{ github.ref_name }} 的测试包（提交 ${GITHUB_SHA::7}，签名：$SIGNING）。在手机上下载 arm64-v8a 的 APK 安装即可。"
+          if [ "$SIGNING" = "debug" ]; then NOTE="$NOTE 注意：仓库还没配签名 Secrets，这是 debug 签名，不能覆盖安装你手机上的正式签名版本。"; fi
+          gh release create "$TAG" "$APK" --prerelease --target "$GITHUB_SHA" \
+            --title "测试包 ${{ github.ref_name }}" --notes "$NOTE"
+
+  emulator:
+    name: Emulator test & screenshots
+    needs: build
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: 'microsoft'
+          java-version: '17'
+
+      - uses: actions/download-artifact@v4
+        with:
+          name: apk
+          path: apk
+
+      - name: Enable KVM
+        run: |
+          echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
+          sudo udevadm control --reload-rules
+          sudo udevadm trigger --name-match=kvm
+
+      - name: Install Maestro
+        run: |
+          curl -Ls "https://get.maestro.mobile.dev" | bash
+          echo "$HOME/.maestro/bin" >> $GITHUB_PATH
+
+      - name: Run on emulator
+        uses: reactivecircus/android-emulator-runner@v2
+        env:
+          APK_PATH: apk/lx-music-mobile-v${{ needs.build.outputs.version }}-x86_64.apk
+          OUT_DIR: ci-out
+        with:
+          api-level: 34
+          arch: x86_64
+          target: google_apis
+          profile: pixel_7
+          disable-animations: true
+          emulator-options: -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none
+          script: bash .github/scripts/cloud-test.sh
+
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: screenshots
+          path: ci-out
+
+      - name: Push screenshots to ci-screenshots branch
+        if: always()
+        env:
+          DEST: ${{ needs.build.outputs.slug }}/${{ github.run_number }}
+        run: |
+          [ -d ci-out ] || exit 0
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          WORK=$RUNNER_TEMP/shots
+          if git ls-remote --exit-code --heads origin ci-screenshots >/dev/null; then
+            git clone --depth 1 --branch ci-screenshots "https://x-access-token:${{ github.token }}@github.com/${{ github.repository }}.git" "$WORK"
+          else
+            mkdir -p "$WORK" && cd "$WORK" && git init -q -b ci-screenshots && git remote add origin "https://x-access-token:${{ github.token }}@github.com/${{ github.repository }}.git" && cd -
+          fi
+          mkdir -p "$WORK/$DEST" && cp -r ci-out/. "$WORK/$DEST/"
+          cd "$WORK"
+          git add -A && git commit -qm "screenshots: ${{ github.ref_name }} run ${{ github.run_number }} (${GITHUB_SHA::7})"
+          for i in 1 2 3 4; do git push origin ci-screenshots && break; git pull --rebase origin ci-screenshots; done
+          echo "截图: https://github.com/${{ github.repository }}/tree/ci-screenshots/$DEST" >> $GITHUB_STEP_SUMMARY

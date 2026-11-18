@@ -1,0 +1,9 @@
+# 冒烟流程：打开 App，截一张首页图。
+# 新功能的测试流程照这个格式加到 .maestro/ 目录，文件名用功能名。
+# 语法见 https://docs.maestro.dev
+appId: cn.toside.music.mobile
+---
+- launchApp
+- waitForAnimationToEnd:
+    timeout: 10000
+- takeScreenshot: smoke-home
