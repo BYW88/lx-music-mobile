@@ -1,5 +1,5 @@
 import { memo, useMemo } from 'react'
-import { View } from 'react-native'
+import { Animated, View } from 'react-native'
 import { useKeyboard } from '@/utils/hooks'
 
 import Pic from './components/Pic'
@@ -8,6 +8,7 @@ import PlayInfo from './components/PlayInfo'
 import ControlBtn from './components/ControlBtn'
 import { createStyle } from '@/utils/tools'
 // import { useSettingValue } from '@/store/setting/hook'
+import useSwipeToggle from './useSwipeToggle'
 import { useTheme } from '@/store/theme/hook'
 import { useSettingValue } from '@/store/setting/hook'
 
@@ -17,22 +18,25 @@ export default memo(({ isHome = false }: { isHome?: boolean }) => {
   const { keyboardShown } = useKeyboard()
   const theme = useTheme()
   const autoHidePlayBar = useSettingValue('common.autoHidePlayBar')
+  const { panHandlers, translateX } = useSwipeToggle()
 
   const playerComponent = useMemo(() => (
-    <View style={{ ...styles.container, backgroundColor: theme['c-content-background'] }}>
-      <Pic isHome={isHome} />
-      <View style={styles.center}>
-        <Title isHome={isHome} />
-        {/* <View style={{ ...styles.row, justifyContent: 'space-between' }}>
-          <PlayTime />
-        </View> */}
-        <PlayInfo isHome={isHome} />
-      </View>
-      <View style={styles.right}>
-        <ControlBtn />
-      </View>
+    <View style={{ ...styles.container, backgroundColor: theme['c-content-background'] }} {...panHandlers}>
+      <Animated.View style={{ ...styles.content, transform: [{ translateX }] }}>
+        <Pic isHome={isHome} />
+        <View style={styles.center}>
+          <Title isHome={isHome} />
+          {/* <View style={{ ...styles.row, justifyContent: 'space-between' }}>
+            <PlayTime />
+          </View> */}
+          <PlayInfo isHome={isHome} />
+        </View>
+        <View style={styles.right}>
+          <ControlBtn />
+        </View>
+      </Animated.View>
     </View>
-  ), [theme, isHome])
+  ), [theme, isHome, panHandlers, translateX])
 
   // console.log('render pb')
 
@@ -57,6 +61,12 @@ const styles = createStyle({
     flexDirection: 'row',
     alignItems: 'center',
     elevation: 10,
+  },
+  content: {
+    flex: 1,
+    alignSelf: 'stretch',
+    flexDirection: 'row',
+    alignItems: 'center',
   },
   left: {
     // borderRadius: 3,

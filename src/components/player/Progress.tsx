@@ -45,6 +45,8 @@ const PreassBar = memo(({ onDragState, setDragProgress, onSetProgress }: {
     PanResponder.create({
       onStartShouldSetPanResponderCapture: (evt, gestureState) => true,
       onMoveShouldSetPanResponderCapture: (evt, gestureState) => true,
+      // 拖动进度时不让外层（如迷你播放栏的左右滑切歌）抢走手势
+      onPanResponderTerminationRequest: () => false,
 
       // onMoveShouldSetPanResponder: () => true,
       onPanResponderMove: (evt, gestureState) => {

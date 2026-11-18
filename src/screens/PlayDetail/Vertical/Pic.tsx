@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from 'react'
-import { Animated, View } from 'react-native'
+import { View } from 'react-native'
 // import { useLayout } from '@/utils/hooks'
 import { createStyle } from '@/utils/tools'
 import { usePlayerMusicInfo } from '@/store/player/hook'
@@ -10,15 +10,13 @@ import { HEADER_HEIGHT } from './components/Header'
 import Image from '@/components/common/Image'
 import { useStatusbarHeight } from '@/store/common/hook'
 import commonState from '@/store/common/state'
-import usePicSwipeNext from '../components/usePicSwipeNext'
+import PicGesture from '../components/PicGesture'
 
 
 export default ({ componentId }: { componentId: string }) => {
   const musicInfo = usePlayerMusicInfo()
   const { width: winWidth, height: winHeight } = useWindowSize()
   const statusBarHeight = useStatusbarHeight()
-
-  const { panHandlers, translateY } = usePicSwipeNext()
 
   const [animated, setAnimated] = useState(!!commonState.componentIds.playDetail)
   const [pic, setPic] = useState(musicInfo.pic)
@@ -42,9 +40,9 @@ export default ({ componentId }: { componentId: string }) => {
 
   return (
     <View style={styles.container}>
-      <Animated.View style={{ ...styles.content, elevation: animated ? 3 : 0, transform: [{ translateY }] }} {...panHandlers}>
+      <PicGesture pic={pic} style={{ ...styles.content, elevation: animated ? 3 : 0 }}>
         <Image url={pic} nativeID={NAV_SHEAR_NATIVE_IDS.playDetail_pic} style={style} />
-      </Animated.View>
+      </PicGesture>
     </View>
   )
 }
