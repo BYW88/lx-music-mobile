@@ -6,7 +6,7 @@ import { View } from 'react-native'
 // import OpenList from './OpenList'
 import { createStyle } from '@/utils/tools'
 // import { BorderWidths } from '@/theme'
-import ActiveBoardMenu from '../../ActiveBoardMenu'
+import ActiveBoardDownloadBtn from '../../ActiveBoardDownloadBtn'
 import SourceSelector, {
   type SourceSelectorType,
 } from './SourceSelector'
@@ -42,7 +42,7 @@ export default forwardRef<HeaderBarType, HeaderBarProps>(({ onShowBound, onSourc
     <View style={{ ...styles.currentList, borderBottomColor: theme['c-border-background'] }}>
       <SourceSelector ref={sourceSelectorRef} onSourceChange={onSourceChange} />
       <ActiveListName ref={activeListNameRef} onShowBound={onShowBound} />
-      <ActiveBoardMenu />
+      <ActiveBoardDownloadBtn />
     </View>
   )
 })

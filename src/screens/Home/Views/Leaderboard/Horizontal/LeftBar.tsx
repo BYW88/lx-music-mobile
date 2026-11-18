@@ -5,7 +5,7 @@ import SourceSelector, {
   type SourceSelectorType as _SourceSelectorType,
   // type SourceSelectorProps as _SourceSelectorProps,
 } from '@/components/SourceSelector'
-import ActiveBoardMenu from '../ActiveBoardMenu'
+import ActiveBoardDownloadBtn from '../ActiveBoardDownloadBtn'
 import BoardsList, { type BoardsListType, type BoardsListProps } from '../BoardsList'
 import { BorderWidths } from '@/theme'
 import { createStyle } from '@/utils/tools'
@@ -73,7 +73,7 @@ export default forwardRef<LeftBarType, LeftBarProps>(({ onChangeList }, ref) => 
         <View style={styles.sourceSelector}>
           <SourceSelector ref={sourceSelectorRef} onSourceChange={onSourceChange} />
         </View>
-        <ActiveBoardMenu />
+        <ActiveBoardDownloadBtn />
       </View>
       <BoardsList
         ref={boardsListRef}
