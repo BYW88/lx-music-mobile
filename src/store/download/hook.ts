@@ -43,3 +43,54 @@ export const useDownloadList = () => {
 
   return list
 }
+
+
+/**
+ * 已下载完成的歌曲 id 集合。所有歌曲行共享一份，只挂一组事件监听，避免每一行都去监听下载事件
+ */
+let downloadedIds = new Set<string>()
+const downloadedListeners = new Set<() => void>()
+let isDownloadedListening = false
+const buildDownloadedIds = () => {
+  const ids = new Set<string>()
+  for (const task of state.list) if (task.isComplate) ids.add(task.metadata.musicInfo.id)
+  return ids
+}
+const updateDownloadedIds = () => {
+  const ids = buildDownloadedIds()
+  if (ids.size == downloadedIds.size && [...ids].every(id => downloadedIds.has(id))) return
+  downloadedIds = ids
+  for (const listener of downloadedListeners) listener()
+}
+const handleDownloadTaskUpdated = (tasks: LX.Download.ListItem[]) => {
+  // 只有完成状态变化才需要重建
+  if (tasks.some(task => task.isComplate != downloadedIds.has(task.metadata.musicInfo.id))) updateDownloadedIds()
+}
+const startDownloadedListening = () => {
+  if (isDownloadedListening) return
+  isDownloadedListening = true
+  downloadedIds = buildDownloadedIds()
+  event.on('listChanged', updateDownloadedIds)
+  event.on('taskUpdated', handleDownloadTaskUpdated)
+}
+
+/**
+ * 歌曲是否已下载完成，用于在歌曲列表中显示“已下载”标记
+ */
+export const useIsDownloaded = (musicId: string) => {
+  startDownloadedListening()
+  const [isDownloaded, setIsDownloaded] = useState(() => downloadedIds.has(musicId))
+
+  useEffect(() => {
+    const handleChange = () => {
+      setIsDownloaded(downloadedIds.has(musicId))
+    }
+    handleChange()
+    downloadedListeners.add(handleChange)
+    return () => {
+      downloadedListeners.delete(handleChange)
+    }
+  }, [musicId])
+
+  return isDownloaded
+}

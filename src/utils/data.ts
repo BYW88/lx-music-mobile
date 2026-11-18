@@ -584,6 +584,20 @@ export const removeUserApi = async(ids: string[]) => {
   if (_ids.length) await removeDataMultiple(_ids)
   return [...userApis]
 }
+/**
+ * 调整自定义源的顺序（自动切换源时按这个顺序依次尝试）
+ * @param id 源 id
+ * @param offset -1 上移，1 下移
+ */
+export const moveUserApi = async(id: string, offset: number) => {
+  const index = userApis.findIndex(api => api.id == id)
+  const toIndex = index + offset
+  if (index < 0 || toIndex < 0 || toIndex >= userApis.length) return [...userApis]
+  const [api] = userApis.splice(index, 1)
+  userApis.splice(toIndex, 0, api)
+  await saveData(userApiPrefix, userApis)
+  return [...userApis]
+}
 export const setUserApiAllowShowUpdateAlert = async(id: string, enable: boolean) => {
   const targetApi = userApis?.find(api => api.id == id)
   if (!targetApi) return
@@ -596,4 +610,21 @@ export const getDownloadList = async() => {
 }
 export const saveDownloadList = async(list: LX.Download.ListItem[]) => {
   await saveData(storageDataPrefix.downloadList, list)
+}
+
+// 稍后播放列表，重启后恢复
+export const getTempPlayList = async() => {
+  return await getData<LX.Player.PlayMusicInfo[]>(storageDataPrefix.tempPlayList) ?? []
+}
+export const saveTempPlayList = async(list: LX.Player.PlayMusicInfo[]) => {
+  await saveData(storageDataPrefix.tempPlayList, list)
+}
+
+// 自动切换自定义源之前用户选的源，下次启动时切回
+export const getUserApiPreferred = async() => {
+  return await getData<string>(storageDataPrefix.userApiPreferred) ?? ''
+}
+export const saveUserApiPreferred = async(id: string) => {
+  if (id) await saveData(storageDataPrefix.userApiPreferred, id)
+  else await removeData(storageDataPrefix.userApiPreferred)
 }

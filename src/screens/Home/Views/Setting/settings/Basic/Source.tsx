@@ -6,6 +6,7 @@ import SubTitle from '../../components/SubTitle'
 import CheckBox from '@/components/common/CheckBox'
 import { createStyle } from '@/utils/tools'
 import { setApiSource } from '@/core/apiSource'
+import { clearUserApiPreferred } from '@/core/userApiFallback'
 import { useI18n } from '@/lang'
 import apiSourceInfo from '@/utils/musicSdk/api-source-info'
 import { useSettingValue } from '@/store/setting/hook'
@@ -63,6 +64,7 @@ export default memo(() => {
     id: s.id,
   })), [t])
   const setApiSourceId = useCallback((id: string) => {
+    clearUserApiPreferred()
     setApiSource(id)
   }, [])
   const userApiListRaw = useUserApiList()

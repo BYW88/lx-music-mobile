@@ -2,8 +2,44 @@ import settingState from '@/store/setting/state'
 import { state as userApiState } from '@/store/userApi/state'
 import { setApiSource } from './apiSource'
 import { toast } from '@/utils/tools'
+import { getUserApiPreferred, saveUserApiPreferred } from '@/utils/data'
 
 const isUserApi = (id: string) => /^user_api/.test(id)
+
+/**
+ * 自动切换前用户自己选的源。自动切换只是临时救急，下次启动时会切回这个源
+ */
+let preferredId: string | null = null
+
+/**
+ * 记下被自动切换掉的首选源（只记第一次，连续切换多次时首选源不变）
+ */
+const rememberPreferred = (id: string) => {
+  if (preferredId) return
+  preferredId = id
+  void saveUserApiPreferred(id)
+}
+
+/**
+ * 用户手动选择了源：以用户的选择为准，不再切回之前的源
+ */
+export const clearUserApiPreferred = () => {
+  if (preferredId == '') return
+  preferredId = ''
+  void saveUserApiPreferred('')
+}
+
+/**
+ * 启动时决定使用哪个源：如果上次运行中发生过自动切换，并且首选源还在，就切回首选源
+ */
+export const getStartupApiSource = async(currentId: string): Promise<string> => {
+  const id = await getUserApiPreferred().catch(() => '')
+  preferredId = ''
+  if (!id) return currentId
+  void saveUserApiPreferred('')
+  if (id == currentId || !userApiState.list.some(api => api.id == id)) return currentId
+  return id
+}
 
 // 同一时间只允许一次切换，其它失败的请求等待切换完成后用新源重试
 let switchingPromise: Promise<boolean> | null = null
@@ -72,6 +108,7 @@ export const withUserApiFallback = async<T>(run: () => Promise<T>): Promise<T> =
       const ok = await switchWithLock(nextId)
       if (ok && settingState.setting['common.apiSource'] == nextId) {
         switched = true
+        rememberPreferred(originId)
         toast(global.i18n.t('user_api_auto_switch_tip', { name: getUserApiName(nextId) }))
         break
       }
