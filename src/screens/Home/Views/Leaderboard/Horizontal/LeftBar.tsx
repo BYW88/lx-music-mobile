@@ -5,6 +5,7 @@ import SourceSelector, {
   type SourceSelectorType as _SourceSelectorType,
   // type SourceSelectorProps as _SourceSelectorProps,
 } from '@/components/SourceSelector'
+import ActiveBoardMenu from '../ActiveBoardMenu'
 import BoardsList, { type BoardsListType, type BoardsListProps } from '../BoardsList'
 import { BorderWidths } from '@/theme'
 import { createStyle } from '@/utils/tools'
@@ -69,7 +70,10 @@ export default forwardRef<LeftBarType, LeftBarProps>(({ onChangeList }, ref) => 
   return (
     <View style={{ ...styles.container, borderRightColor: theme['c-list-header-border-bottom'] }}>
       <View style={styles.selector}>
-        <SourceSelector ref={sourceSelectorRef} onSourceChange={onSourceChange} />
+        <View style={styles.sourceSelector}>
+          <SourceSelector ref={sourceSelectorRef} onSourceChange={onSourceChange} />
+        </View>
+        <ActiveBoardMenu />
       </View>
       <BoardsList
         ref={boardsListRef}
@@ -93,6 +97,10 @@ const styles = createStyle({
   },
   selector: {
     height: 38,
+    flexDirection: 'row',
+  },
+  sourceSelector: {
+    flex: 1,
   },
 })
 
