@@ -620,5 +620,10 @@
   "music_file_info_cache_partial": "Cached {cached} ({progress}%)",
   "music_file_info_path": "File path",
   "music_file_info_url": "Stream URL",
-  "music_file_info_copy_tip": "Long press to copy"
+  "music_file_info_copy_tip": "Long press to copy",
+  "play_detail_pic_view": "View cover",
+  "play_detail_pic_save": "Save cover",
+  "play_detail_pic_save_success": "Cover saved to {path}",
+  "play_detail_pic_save_failed": "Failed to save cover",
+  "play_detail_pic_save_no_permission": "No storage permission, cannot save cover"
 }

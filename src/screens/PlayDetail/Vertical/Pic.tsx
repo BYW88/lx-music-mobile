@@ -10,6 +10,7 @@ import { HEADER_HEIGHT } from './components/Header'
 import Image from '@/components/common/Image'
 import { useStatusbarHeight } from '@/store/common/hook'
 import commonState from '@/store/common/state'
+import PicGesture from '../components/PicGesture'
 
 
 export default ({ componentId }: { componentId: string }) => {
@@ -39,9 +40,9 @@ export default ({ componentId }: { componentId: string }) => {
 
   return (
     <View style={styles.container}>
-      <View style={{ ...styles.content, elevation: animated ? 3 : 0 }}>
+      <PicGesture pic={pic} style={{ ...styles.content, elevation: animated ? 3 : 0 }}>
         <Image url={pic} nativeID={NAV_SHEAR_NATIVE_IDS.playDetail_pic} style={style} />
-      </View>
+      </PicGesture>
     </View>
   )
 }

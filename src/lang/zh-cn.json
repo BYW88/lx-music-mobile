@@ -620,5 +620,10 @@
   "music_file_info_cache_partial": "已缓存 {cached}（{progress}%）",
   "music_file_info_path": "文件路径",
   "music_file_info_url": "播放链接",
-  "music_file_info_copy_tip": "长按复制"
+  "music_file_info_copy_tip": "长按复制",
+  "play_detail_pic_view": "查看大图",
+  "play_detail_pic_save": "保存封面",
+  "play_detail_pic_save_success": "封面已保存到 {path}",
+  "play_detail_pic_save_failed": "封面保存失败",
+  "play_detail_pic_save_no_permission": "没有存储权限，无法保存封面"
 }

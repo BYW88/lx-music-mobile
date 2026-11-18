@@ -12,6 +12,7 @@ import { marginLeft } from './constant'
 import Image from '@/components/common/Image'
 import { useStatusbarHeight } from '@/store/common/hook'
 import commonState from '@/store/common/state'
+import PicGesture from '../components/PicGesture'
 
 
 export default memo(({ componentId }: { componentId: string }) => {
@@ -36,13 +37,13 @@ export default memo(({ componentId }: { componentId: string }) => {
 
   return (
     <View style={{ ...styles.container, height: contentHeight }}>
-      <View style={{ ...styles.content, elevation: animated ? 3 : 0 }}>
+      <PicGesture pic={pic} style={{ ...styles.content, elevation: animated ? 3 : 0 }}>
         <Image url={pic} nativeID={NAV_SHEAR_NATIVE_IDS.playDetail_pic} style={{
           width: imgWidth,
           height: imgWidth,
           borderRadius: 2,
         }} />
-      </View>
+      </PicGesture>
     </View>
   )
 })
