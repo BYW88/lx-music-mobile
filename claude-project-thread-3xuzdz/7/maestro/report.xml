@@ -1,0 +1,9 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<testsuites>
+  <testsuite name="Test Suite" device="test" tests="2" failures="1" time="141.541" timestamp="2026-11-19T12:44:58">
+    <testcase id="local-music" name="local-music" classname="local-music" file="/home/runner/work/lx-music-mobile/lx-music-mobile/.maestro/local-music.yaml" time="81.725" timestamp="2026-11-19T12:44:58" status="ERROR">
+      <failure>Element not found: Text matching regex: 晴天</failure>
+    </testcase>
+    <testcase id="smoke" name="smoke" classname="smoke" file="/home/runner/work/lx-music-mobile/lx-music-mobile/.maestro/smoke.yaml" time="59.794" timestamp="2026-11-19T12:46:19" status="SUCCESS"/>
+  </testsuite>
+</testsuites>
