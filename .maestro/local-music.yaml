@@ -1,0 +1,40 @@
+# 本地音乐：打开下载页，截图本地音乐标签、播放、多选、下载任务标签
+appId: cn.toside.music.mobile
+---
+- launchApp
+- waitForAnimationToEnd:
+    timeout: 10000
+- repeat:
+    times: 3
+    commands:
+      - tapOn:
+          text: "(我知道了|好的|^接受$).*"
+          optional: true
+      - waitForAnimationToEnd
+- tapOn:
+    point: "7%,8%"
+- waitForAnimationToEnd
+- tapOn: "下载管理"
+- waitForAnimationToEnd
+- extendedWaitUntil:
+    visible: "晴天"
+    timeout: 15000
+    optional: true
+- takeScreenshot: local-01-list
+- tapOn: "晴天"
+- waitForAnimationToEnd:
+    timeout: 5000
+- takeScreenshot: local-02-playing
+- longPressOn: "后来"
+- waitForAnimationToEnd
+- takeScreenshot: local-03-multiselect
+- tapOn: "^取消$"
+- waitForAnimationToEnd
+- tapOn: "排序.*"
+- waitForAnimationToEnd
+- takeScreenshot: local-04-sort
+- tapOn: "歌名"
+- waitForAnimationToEnd
+- tapOn: "下载任务.*"
+- waitForAnimationToEnd
+- takeScreenshot: local-05-tasks

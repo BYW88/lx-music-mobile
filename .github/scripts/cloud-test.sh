@@ -15,6 +15,19 @@ until [ "$(adb shell getprop sys.boot_completed | tr -d '\r')" = "1" ]; do sleep
 sleep 5
 adb shell settings put system screen_off_timeout 1800000
 adb install -r -g "$APK_PATH" || exit 1
+# 本地音乐测试用的几首歌，放到默认下载保存位置
+if command -v ffmpeg >/dev/null; then
+  SONGS=$(mktemp -d)
+  mk() { ffmpeg -loglevel error -y -f lavfi -i "sine=frequency=$1:duration=20" "${@:3}" "$SONGS/$2"; }
+  mk 440 "晴天 - 周杰伦.flac" -metadata title=晴天 -metadata artist=周杰伦 -metadata album=叶惠美
+  mk 523 "后来 - 刘若英.mp3" -b:a 320k -metadata title=后来 -metadata artist=刘若英 -metadata album=我等你
+  mk 587 "夜曲 - 周杰伦.mp3" -b:a 128k -metadata title=夜曲 -metadata artist=周杰伦 -metadata album=十一月的萧邦
+  mk 659 "some_song_without_tags.mp3" -b:a 192k -map_metadata -1
+  adb shell mkdir -p /sdcard/Music/lx-music
+  adb push "$SONGS/." /sdcard/Music/lx-music/ >/dev/null
+  adb shell ls -l /sdcard/Music/lx-music
+fi
+adb shell appops set "$PKG" MANAGE_EXTERNAL_STORAGE allow || true
 adb logcat -c
 
 # 冒烟：启动 App，等 15 秒，截图
