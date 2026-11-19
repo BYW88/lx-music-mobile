@@ -166,7 +166,7 @@ export const setUserList = (lists: LX.List.UserListInfo[]) => {
  * @param id
  * @param list
  */
-export const setTempList = async(id: string, list: LX.Music.MusicInfoOnline[], name?: string) => {
+export const setTempList = async(id: string, list: LX.Music.MusicInfo[], name?: string) => {
   await overwriteListMusics(LIST_IDS.TEMP, list)
   listAction.setTempListMeta({ id, name: name ?? (listState.tempListMeta.id == id ? listState.tempListMeta.name : undefined) })
 }

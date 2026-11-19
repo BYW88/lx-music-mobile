@@ -58,7 +58,7 @@ export default memo(({ item, index, activeIndex, onPress, onShowMenu, onLongPres
           {/* </View> */}
           <View style={styles.listItemSingle}>
             <Badge>{item.source.toUpperCase()}</Badge>
-            <DownloadedMark musicId={item.id} />
+            <DownloadedMark musicInfo={item} />
             <Text style={styles.listItemSingleText} size={11} color={active ? theme['c-primary-alpha-200'] : theme['c-500']} numberOfLines={1}>
               {singer}
             </Text>

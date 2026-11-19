@@ -68,7 +68,7 @@ export default memo(({ item, index, showSource, onPress, onLongPress, onShowMenu
           <View style={styles.listItemSingle}>
             { tagInfo.type ? <Badge type={tagInfo.type}>{tagInfo.text}</Badge> : null }
             { showSource ? <Badge type="tertiary">{item.source}</Badge> : null }
-            <DownloadedMark musicId={item.id} />
+            <DownloadedMark musicInfo={item} />
             <Text style={styles.listItemSingleText} size={11} color={theme['c-500']} numberOfLines={1}>{singer}</Text>
           </View>
         </View>

@@ -11,10 +11,12 @@ import { getPlayQuality, getSettingPlayQuality } from '@/core/music/utils'
 import { writeMetadata, writePic, writeLyric } from '@/utils/localMediaMetadata'
 import { getDownloadList, saveDownloadList } from '@/utils/data'
 import { filterFileName, throttle } from '@/utils/common'
-import { externalStorageDirectoryPath, downloadFile, stopDownload } from '@/utils/fs'
+import { downloadFile, stopDownload } from '@/utils/fs'
 import { formatMusicName, requestStoragePermission, toast, TEMP_FILE_PATH } from '@/utils/tools'
 import { log } from '@/utils/log'
 import { exportCache } from '@/plugins/player'
+import { getSavePath } from './savePath'
+import { findLocalMusicFilePath } from '@/core/localMusic'
 
 export const DOWNLOAD_STATUS = {
   RUN: 'run',
@@ -42,8 +44,7 @@ const retryNums = new Map<string, number>()
 
 const t: typeof global.i18n.t = (key, data) => global.i18n.t(key, data)
 
-export const getDefaultSavePath = () => `${externalStorageDirectoryPath}/Music/lx-music`
-export const getSavePath = () => settingState.setting['download.savePath'] || getDefaultSavePath()
+export { getDefaultSavePath, getSavePath } from './savePath'
 
 const joinPath = (dir: string, name: string) => `${dir.replace(/\/+$/, '')}/${name}`
 
@@ -517,5 +518,6 @@ export const getDownloadedFilePath = async(musicInfo: LX.Music.MusicInfo): Promi
     if (!task.isComplate || task.metadata.musicInfo.id != musicInfo.id || !task.metadata.filePath) continue
     if (await RNFS.exists(task.metadata.filePath).catch(() => false)) return task.metadata.filePath
   }
-  return null
+  // 下载任务已被清除时，按“歌名 + 歌手”到本地音乐里找
+  return findLocalMusicFilePath(musicInfo)
 }

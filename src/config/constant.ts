@@ -79,6 +79,9 @@ export const storageDataPrefix = {
 
   downloadList: '@download_list',
 
+  localMusic: '@local_music',
+  downloadPageTab: '@download_page_tab',
+
   tempPlayList: '@temp_play_list',
 
   userApiPreferred: '@user_api_preferred',
