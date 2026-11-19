@@ -1,0 +1,91 @@
+13:13:54.912 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandStart: Define variables RUNNING
+13:13:54.915 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandFinished: Define variables COMPLETED
+13:13:54.918 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandStart: Apply configuration RUNNING
+13:13:54.919 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandFinished: Apply configuration COMPLETED
+13:13:54.919 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandStart: Launch app "cn.toside.music.mobile" RUNNING
+13:13:55.327 [ INFO] maestro.Maestro.launchApp$lambda$6: Launching app cn.toside.music.mobile
+13:13:55.327 [ INFO] maestro.Maestro.launchApp$lambda$6: Stopping cn.toside.music.mobile app during launch
+13:13:55.534 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandFinished: Launch app "cn.toside.music.mobile" COMPLETED
+13:13:55.534 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandStart: Wait for animation to end within 10000 ms RUNNING
+13:13:55.535 [ INFO] maestro.Maestro.waitForAnimationToEnd$lambda$54: Waiting for animation to end with timeout 10000
+13:13:55.535 [TRACE] maestro.utils.ScreenshotUtils.takeScreenshot: Taking screenshot to byte array
+13:13:55.535 [TRACE] maestro.utils.ScreenshotUtils.takeScreenshot: Taking screenshot to output sink
+13:13:56.170 [TRACE] maestro.utils.ScreenshotUtils.takeScreenshot: Taking screenshot to byte array
+13:13:56.170 [TRACE] maestro.utils.ScreenshotUtils.takeScreenshot: Taking screenshot to output sink
+13:13:57.977 [TRACE] maestro.utils.ScreenshotUtils.takeScreenshot: Taking screenshot to byte array
+13:13:57.977 [TRACE] maestro.utils.ScreenshotUtils.takeScreenshot: Taking screenshot to output sink
+13:13:58.497 [TRACE] maestro.utils.ScreenshotUtils.takeScreenshot: Taking screenshot to byte array
+13:13:58.497 [TRACE] maestro.utils.ScreenshotUtils.takeScreenshot: Taking screenshot to output sink
+13:13:59.580 [TRACE] maestro.utils.ScreenshotUtils.takeScreenshot: Taking screenshot to byte array
+13:13:59.580 [TRACE] maestro.utils.ScreenshotUtils.takeScreenshot: Taking screenshot to output sink
+13:13:59.746 [TRACE] maestro.utils.ScreenshotUtils.takeScreenshot: Taking screenshot to byte array
+13:13:59.746 [TRACE] maestro.utils.ScreenshotUtils.takeScreenshot: Taking screenshot to output sink
+13:14:00.127 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandFinished: Wait for animation to end within 10000 ms COMPLETED
+13:14:00.128 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandStart: Tap on (Optional) "我知道了.*" RUNNING
+13:14:07.449 [ INFO] maestro.orchestra.Orchestra.executeCommands: [Command execution] CommandWarned: Element not found: Text matching regex: 我知道了.*
+13:14:07.667 [ INFO] maestro.Maestro.takeScreenshot: Taking screenshot
+13:14:07.667 [TRACE] maestro.utils.ScreenshotUtils.takeScreenshot: Taking screenshot to output sink
+13:14:07.806 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandFinished: Tap on (Optional) "我知道了.*" WARNED
+13:14:07.806 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandStart: Assert that (Optional) "^接受$" is visible RUNNING
+13:14:30.565 [ INFO] maestro.orchestra.Orchestra.executeCommands: [Command execution] CommandWarned: Assertion is false: "^接受$" is visible
+13:14:30.750 [ INFO] maestro.Maestro.takeScreenshot: Taking screenshot
+13:14:30.750 [TRACE] maestro.utils.ScreenshotUtils.takeScreenshot: Taking screenshot to output sink
+13:14:30.925 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandFinished: Assert that (Optional) "^接受$" is visible WARNED
+13:14:30.925 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandStart: Tap on (Optional) "^接受$" RUNNING
+13:14:31.257 [ INFO] maestro.orchestra.Orchestra.executeCommands: [Command execution] CommandWarned: Element not found: Text matching regex: ^接受$
+13:14:31.386 [ INFO] maestro.Maestro.takeScreenshot: Taking screenshot
+13:14:31.387 [TRACE] maestro.utils.ScreenshotUtils.takeScreenshot: Taking screenshot to output sink
+13:14:31.521 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandFinished: Tap on (Optional) "^接受$" WARNED
+13:14:31.521 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandStart: Wait for animation to end RUNNING
+13:14:31.522 [ INFO] maestro.Maestro.waitForAnimationToEnd$lambda$54: Waiting for animation to end with timeout 15000
+13:14:31.522 [TRACE] maestro.utils.ScreenshotUtils.takeScreenshot: Taking screenshot to byte array
+13:14:31.522 [TRACE] maestro.utils.ScreenshotUtils.takeScreenshot: Taking screenshot to output sink
+13:14:31.708 [TRACE] maestro.utils.ScreenshotUtils.takeScreenshot: Taking screenshot to byte array
+13:14:31.708 [TRACE] maestro.utils.ScreenshotUtils.takeScreenshot: Taking screenshot to output sink
+13:14:32.050 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandFinished: Wait for animation to end COMPLETED
+13:14:32.051 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandStart: Repeat 3 times RUNNING
+13:14:32.051 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandStart: Tap on (Optional) "(我知道了|好的).*" RUNNING
+13:14:39.401 [ INFO] maestro.orchestra.Orchestra.executeSubflowCommands: [Command execution subflow] CommandWarned: Element not found: Text matching regex: (我知道了|好的).*
+13:14:39.566 [ INFO] maestro.Maestro.takeScreenshot: Taking screenshot
+13:14:39.566 [TRACE] maestro.utils.ScreenshotUtils.takeScreenshot: Taking screenshot to output sink
+13:14:39.701 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandFinished: Tap on (Optional) "(我知道了|好的).*" WARNED
+13:14:39.701 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandStart: Wait for animation to end RUNNING
+13:14:39.702 [ INFO] maestro.Maestro.waitForAnimationToEnd$lambda$54: Waiting for animation to end with timeout 15000
+13:14:39.702 [TRACE] maestro.utils.ScreenshotUtils.takeScreenshot: Taking screenshot to byte array
+13:14:39.702 [TRACE] maestro.utils.ScreenshotUtils.takeScreenshot: Taking screenshot to output sink
+13:14:39.896 [TRACE] maestro.utils.ScreenshotUtils.takeScreenshot: Taking screenshot to byte array
+13:14:39.896 [TRACE] maestro.utils.ScreenshotUtils.takeScreenshot: Taking screenshot to output sink
+13:14:40.232 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandFinished: Wait for animation to end COMPLETED
+13:14:40.232 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandReset: Tap on (Optional) "(我知道了|好的).*" PENDING
+13:14:40.232 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandReset: Wait for animation to end PENDING
+13:14:40.232 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandStart: Tap on (Optional) "(我知道了|好的).*" RUNNING
+13:14:47.581 [ INFO] maestro.orchestra.Orchestra.executeSubflowCommands: [Command execution subflow] CommandWarned: Element not found: Text matching regex: (我知道了|好的).*
+13:14:47.750 [ INFO] maestro.Maestro.takeScreenshot: Taking screenshot
+13:14:47.750 [TRACE] maestro.utils.ScreenshotUtils.takeScreenshot: Taking screenshot to output sink
+13:14:47.916 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandFinished: Tap on (Optional) "(我知道了|好的).*" WARNED
+13:14:47.916 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandStart: Wait for animation to end RUNNING
+13:14:47.916 [ INFO] maestro.Maestro.waitForAnimationToEnd$lambda$54: Waiting for animation to end with timeout 15000
+13:14:47.916 [TRACE] maestro.utils.ScreenshotUtils.takeScreenshot: Taking screenshot to byte array
+13:14:47.916 [TRACE] maestro.utils.ScreenshotUtils.takeScreenshot: Taking screenshot to output sink
+13:14:48.149 [TRACE] maestro.utils.ScreenshotUtils.takeScreenshot: Taking screenshot to byte array
+13:14:48.149 [TRACE] maestro.utils.ScreenshotUtils.takeScreenshot: Taking screenshot to output sink
+13:14:48.477 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandFinished: Wait for animation to end COMPLETED
+13:14:48.477 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandReset: Tap on (Optional) "(我知道了|好的).*" PENDING
+13:14:48.477 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandReset: Wait for animation to end PENDING
+13:14:48.477 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandStart: Tap on (Optional) "(我知道了|好的).*" RUNNING
+13:14:55.741 [ INFO] maestro.orchestra.Orchestra.executeSubflowCommands: [Command execution subflow] CommandWarned: Element not found: Text matching regex: (我知道了|好的).*
+13:14:55.901 [ INFO] maestro.Maestro.takeScreenshot: Taking screenshot
+13:14:55.902 [TRACE] maestro.utils.ScreenshotUtils.takeScreenshot: Taking screenshot to output sink
+13:14:56.031 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandFinished: Tap on (Optional) "(我知道了|好的).*" WARNED
+13:14:56.031 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandStart: Wait for animation to end RUNNING
+13:14:56.032 [ INFO] maestro.Maestro.waitForAnimationToEnd$lambda$54: Waiting for animation to end with timeout 15000
+13:14:56.032 [TRACE] maestro.utils.ScreenshotUtils.takeScreenshot: Taking screenshot to byte array
+13:14:56.032 [TRACE] maestro.utils.ScreenshotUtils.takeScreenshot: Taking screenshot to output sink
+13:14:56.229 [TRACE] maestro.utils.ScreenshotUtils.takeScreenshot: Taking screenshot to byte array
+13:14:56.229 [TRACE] maestro.utils.ScreenshotUtils.takeScreenshot: Taking screenshot to output sink
+13:14:56.554 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandFinished: Wait for animation to end COMPLETED
+13:14:56.554 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandFinished: Repeat 3 times COMPLETED
+13:14:56.555 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandStart: Take screenshot smoke-home RUNNING
+13:14:56.555 [ INFO] maestro.Maestro.takeScreenshot: Taking screenshot
+13:14:56.555 [TRACE] maestro.utils.ScreenshotUtils.takeScreenshot: Taking screenshot to output sink
+13:14:56.696 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandFinished: Take screenshot smoke-home COMPLETED

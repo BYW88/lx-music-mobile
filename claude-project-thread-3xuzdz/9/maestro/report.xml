@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<testsuites>
+  <testsuite name="Test Suite" device="test" tests="2" failures="0" time="164.848" timestamp="2026-11-19T13:12:11">
+    <testcase id="local-music" name="local-music" classname="local-music" file="/home/runner/work/lx-music-mobile/lx-music-mobile/.maestro/local-music.yaml" time="102.87" timestamp="2026-11-19T13:12:11" status="SUCCESS"/>
+    <testcase id="smoke" name="smoke" classname="smoke" file="/home/runner/work/lx-music-mobile/lx-music-mobile/.maestro/smoke.yaml" time="61.939" timestamp="2026-11-19T13:13:54" status="SUCCESS"/>
+  </testsuite>
+</testsuites>
