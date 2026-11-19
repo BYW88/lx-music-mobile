@@ -10,6 +10,7 @@ import MusicMultiAddModal, { type MusicMultiAddModalType } from '@/components/Mu
 import MultiSelectActionBar, { type MultiSelectActionBarType, MULTI_SELECT_ACTION_BAR_HEIGHT } from '@/components/MultiSelectActionBar'
 import MusicFileInfoModal, { type MusicFileInfoModalType } from '@/screens/PlayDetail/components/MusicFileInfo'
 import { createStyle, toast } from '@/utils/tools'
+import { scaleSizeW } from '@/utils/pixelRatio'
 import { useTheme } from '@/store/theme/hook'
 import { useI18n } from '@/lang'
 import { usePlayMusicInfo } from '@/store/player/hook'
@@ -20,6 +21,8 @@ import ListItem, { ITEM_HEIGHT } from './ListItem'
 import { filterList, playLocalMusic, playLocalMusicLater, removeLocalMusic, sortList, type SortType } from './action'
 
 type FlatListType = FlatListProps<LocalMusicItem>
+
+const menuWidth = scaleSizeW(130)
 
 export default () => {
   const t = useI18n()
@@ -256,7 +259,7 @@ export default () => {
         ]}
         onAction={handleMultiAction}
       />
-      <Menu ref={menuRef} menus={menus} onPress={handleMenuPress} />
+      <Menu ref={menuRef} menus={menus} onPress={handleMenuPress} width={menuWidth} />
       <MusicAddModal ref={musicAddModalRef} />
       <MusicMultiAddModal ref={musicMultiAddModalRef} onAdded={exitMultiSelect} />
       <MusicFileInfoModal ref={musicFileInfoRef} />
