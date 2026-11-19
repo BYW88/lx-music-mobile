@@ -1,0 +1,9 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<testsuites>
+  <testsuite name="Test Suite" device="test" tests="2" failures="1" time="117.765" timestamp="2026-11-19T04:11:53">
+    <testcase id="local-music" name="local-music" classname="local-music" file="/home/runner/work/lx-music-mobile/lx-music-mobile/.maestro/local-music.yaml" time="57.615" timestamp="2026-11-19T04:11:53" status="ERROR">
+      <failure>Element not found: Text matching regex: 下载管理</failure>
+    </testcase>
+    <testcase id="smoke" name="smoke" classname="smoke" file="/home/runner/work/lx-music-mobile/lx-music-mobile/.maestro/smoke.yaml" time="60.121" timestamp="2026-11-19T04:12:51" status="SUCCESS"/>
+  </testsuite>
+</testsuites>
