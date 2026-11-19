@@ -36,7 +36,17 @@ appId: cn.toside.music.mobile
 - tapOn: "夜曲"
 - waitForAnimationToEnd:
     timeout: 5000
+- tapOn:
+    text: "我就不"
+    optional: true
+- waitForAnimationToEnd
 - takeScreenshot: local-02-playing
+- tapOn:
+    point: "93%,42%"
+- waitForAnimationToEnd
+- takeScreenshot: local-02b-menu
+- back
+- waitForAnimationToEnd
 - longPressOn: "some_song_without_tags"
 - waitForAnimationToEnd
 - takeScreenshot: local-03-multiselect
