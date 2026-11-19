@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import state from './state'
 import { event } from './event'
+import { event as localMusicEvent, findLocalMusic } from '@/core/localMusic'
 
 /**
  * 下载任务在核心中是原地修改的，直接把原对象交给列表组件会让 memo 比较始终相等而不刷新。
@@ -72,25 +73,32 @@ const startDownloadedListening = () => {
   downloadedIds = buildDownloadedIds()
   event.on('listChanged', updateDownloadedIds)
   event.on('taskUpdated', handleDownloadTaskUpdated)
+  // 本地音乐变化时，按歌名 + 歌手匹配的结果也可能变化
+  localMusicEvent.on('listChanged', () => {
+    for (const listener of downloadedListeners) listener()
+  })
 }
 
+const checkDownloaded = (musicInfo: LX.Music.MusicInfo) => downloadedIds.has(musicInfo.id) || !!findLocalMusic(musicInfo)
+
 /**
- * 歌曲是否已下载完成，用于在歌曲列表中显示“已下载”标记
+ * 歌曲是否已下载完成，用于在歌曲列表中显示“已下载”标记。
+ * 下载任务里有，或本地音乐里有同歌名同歌手的文件，都算已下载
  */
-export const useIsDownloaded = (musicId: string) => {
+export const useIsDownloaded = (musicInfo: LX.Music.MusicInfo) => {
   startDownloadedListening()
-  const [isDownloaded, setIsDownloaded] = useState(() => downloadedIds.has(musicId))
+  const [isDownloaded, setIsDownloaded] = useState(() => checkDownloaded(musicInfo))
 
   useEffect(() => {
     const handleChange = () => {
-      setIsDownloaded(downloadedIds.has(musicId))
+      setIsDownloaded(checkDownloaded(musicInfo))
     }
     handleChange()
     downloadedListeners.add(handleChange)
     return () => {
       downloadedListeners.delete(handleChange)
     }
-  }, [musicId])
+  }, [musicInfo])
 
   return isDownloaded
 }

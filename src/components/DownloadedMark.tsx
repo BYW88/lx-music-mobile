@@ -7,9 +7,9 @@ import { createStyle } from '@/utils/tools'
 /**
  * 歌曲行上的“已下载”小图标，歌曲未下载时不显示
  */
-export default memo(({ musicId }: { musicId: string }) => {
+export default memo(({ musicInfo }: { musicInfo: LX.Music.MusicInfo }) => {
   const theme = useTheme()
-  const isDownloaded = useIsDownloaded(musicId)
+  const isDownloaded = useIsDownloaded(musicInfo)
   if (!isDownloaded) return null
   return <Icon style={styles.icon} name="download-2" size={10} color={theme['c-primary-font']} />
 })
