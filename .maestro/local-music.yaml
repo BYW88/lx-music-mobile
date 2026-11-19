@@ -29,15 +29,15 @@ appId: cn.toside.music.mobile
 - tapOn: "下载管理"
 - waitForAnimationToEnd
 - extendedWaitUntil:
-    visible: "晴天"
+    visible: "夜曲"
     timeout: 15000
     optional: true
 - takeScreenshot: local-01-list
-- tapOn: "晴天"
+- tapOn: "夜曲"
 - waitForAnimationToEnd:
     timeout: 5000
 - takeScreenshot: local-02-playing
-- longPressOn: "后来"
+- longPressOn: "some_song_without_tags"
 - waitForAnimationToEnd
 - takeScreenshot: local-03-multiselect
 - tapOn: "^取消$"

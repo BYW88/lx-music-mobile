@@ -207,7 +207,7 @@ export default () => {
         </TouchableOpacity>
       </View>
       <View style={styles.searchBar}>
-        <View style={styles.searchInputWrap}>
+        <View style={{ ...styles.searchInputWrap, backgroundColor: theme['c-primary-input-background'] }}>
           <Icon name="search-2" size={13} color={theme['c-font-label']} style={styles.searchIcon} />
           <Input
             style={styles.searchInput}
@@ -288,15 +288,20 @@ const styles = createStyle({
   searchBar: {
     flexDirection: 'row',
     alignItems: 'center',
+    height: 42,
+    flexGrow: 0,
+    flexShrink: 0,
     paddingLeft: 12,
     paddingRight: 4,
-    paddingTop: 6,
-    paddingBottom: 6,
   },
   searchInputWrap: {
     flex: 1,
     flexDirection: 'row',
     alignItems: 'center',
+    height: 30,
+    borderRadius: 15,
+    paddingRight: 6,
+    overflow: 'hidden',
   },
   searchIcon: {
     position: 'absolute',
@@ -304,10 +309,9 @@ const styles = createStyle({
     zIndex: 1,
   },
   searchInput: {
-    flex: 1,
-    borderRadius: 15,
     paddingLeft: 28,
     height: 30,
+    backgroundColor: 'transparent',
   },
   sortBtn: {
     paddingLeft: 10,
